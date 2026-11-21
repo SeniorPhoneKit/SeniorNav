@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Only window changes, no content events. canRetrieveWindowContent is needed
+     for getWindows() (to see whether a keyboard is up); the service never reads
+     what is inside a window. isAccessibilityTool: the bar is a navigation aid
+     for people who cannot use the small system buttons or gestures. -->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeWindowsChanged|typeWindowStateChanged"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagRetrieveInteractiveWindows"
+    android:canRetrieveWindowContent="true"
+    android:description="@string/service_description"
+    android:isAccessibilityTool="true"
+    android:notificationTimeout="100"
+    android:settingsActivity="app.phueber.seniornav.MainActivity" />

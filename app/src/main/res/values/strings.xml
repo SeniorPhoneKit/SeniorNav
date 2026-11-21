@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Back &amp; Home</string>
+    <string name="back">Back</string>
+
+    <!-- The bar. Short: they sit next to an icon in a bar 48dp high. -->
+    <string name="bar_back">Back</string>
+    <string name="bar_home">Home</string>
+
+    <!-- Shown in Accessibility settings, and to Google Play reviewers. -->
+    <string name="service_description">Shows a big, fixed bar with Back and Home buttons at the bottom of the screen, over the phone\'s own navigation buttons. It is a navigation aid for older people and people with cognitive or motor impairments who find the small system buttons or swipe gestures hard to use. It only watches which windows are open (to step aside for the keyboard and the lock screen); it never reads what is on the screen, and sends nothing anywhere.</string>
+
+    <string name="status_on">✓ The bar is on.</string>
+    <string name="status_off">✗ The bar is off.</string>
+    <string name="status_stuck">✗ The bar is turned on but not running.</string>
+
+    <string name="what_it_does">A big bar with Back and Home sits at the bottom of the screen, in every app, over the phone\'s own buttons.</string>
+    <string name="how_to_turn_on">To turn it on: tap the button below, find \"Back &amp; Home\" (often under \"Downloaded apps\"), open it and switch it on. Android then asks for permission; allow it.</string>
+    <string name="how_to_restart">Android has stopped it. Tap the button below, open \"Back &amp; Home\", switch it off and on again.</string>
+    <string name="open_accessibility">Open accessibility settings</string>
+    <string name="open_accessibility_off">Turn off in accessibility settings</string>
+    <string name="restricted_hint">If Android says \"Restricted setting\": open App info below, tap ⋮ at the top right, choose \"Allow restricted settings\", then try again. This is needed when the app was not installed from Google Play.</string>
+    <string name="open_app_info">Open App info</string>
+    <string name="locked">Locked from the home screen. Unlock it there to change settings.</string>
+
+    <string name="nav_heading">Navigation buttons</string>
+    <string name="nav_three_button">This phone uses 3-button navigation.</string>
+    <string name="nav_two_button">This phone uses 2-button navigation.</string>
+    <string name="nav_gesture">This phone uses gesture navigation (swiping).</string>
+    <string name="nav_unknown">The navigation mode of this phone could not be read.</string>
+    <string name="nav_good">Good: the bar sits exactly over the phone\'s own buttons.</string>
+    <string name="nav_advice">Choose 3-button navigation. Then the bar sits exactly over the phone\'s own buttons and takes their taps. With swiping, a swipe from the bottom edge still goes past the bar. In Settings, search for \"navigation\" if the button below does not open it.</string>
+    <string name="open_navigation">Open navigation settings</string>
+</resources>

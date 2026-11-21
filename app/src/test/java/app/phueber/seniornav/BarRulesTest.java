@@ -1,0 +1,35 @@
+package app.phueber.seniornav;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+
+public class BarRulesTest {
+    @Test public void showsWhenNothingIsInTheWay() {
+        assertTrue(BarRules.show(false, false, false));
+    }
+
+    @Test public void hidesOnTheLockScreen() {
+        assertFalse(BarRules.show(true, false, false));
+    }
+
+    @Test public void hidesWhileAKeyboardIsUp() {
+        assertFalse(BarRules.show(false, true, false));
+    }
+
+    @Test public void hidesWhenTheSystemBarIsGone() {
+        assertFalse(BarRules.show(false, false, true));
+    }
+
+    @Test public void anyReasonIsEnoughToHide() {
+        assertFalse(BarRules.show(true, true, true));
+        assertFalse(BarRules.show(true, true, false));
+    }
+
+    @Test public void navBarCountsAsVisibleUntilReported() {
+        assertFalse(BarRules.navBarHidden(null));
+        assertFalse(BarRules.navBarHidden(true));
+        assertTrue(BarRules.navBarHidden(false));
+    }
+}

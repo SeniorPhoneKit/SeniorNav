@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Zurück &amp; Start</string>
+    <string name="back">Zurück</string>
+
+    <string name="bar_back">Zurück</string>
+    <string name="bar_home">Start</string>
+
+    <string name="service_description">Zeigt unten auf dem Bildschirm eine große, feste Leiste mit den Tasten Zurück und Start, über den eigenen Navigationstasten des Telefons. Sie ist eine Navigationshilfe für ältere Menschen und Menschen mit kognitiven oder motorischen Einschränkungen, denen die kleinen Systemtasten oder Wischgesten schwerfallen. Sie beobachtet nur, welche Fenster offen sind (um der Tastatur und dem Sperrbildschirm Platz zu machen); sie liest nie, was auf dem Bildschirm steht, und sendet nichts irgendwohin.</string>
+
+    <string name="status_on">✓ Die Leiste ist an.</string>
+    <string name="status_off">✗ Die Leiste ist aus.</string>
+    <string name="status_stuck">✗ Die Leiste ist eingeschaltet, läuft aber nicht.</string>
+
+    <string name="what_it_does">Eine große Leiste mit Zurück und Start liegt unten auf dem Bildschirm, in jeder App, über den eigenen Tasten des Telefons.</string>
+    <string name="how_to_turn_on">Zum Einschalten: unten tippen, „Zurück &amp; Start“ suchen (oft unter „Heruntergeladene Apps“), öffnen und einschalten. Android fragt dann nach der Erlaubnis; erlauben.</string>
+    <string name="how_to_restart">Android hat sie angehalten. Unten tippen, „Zurück &amp; Start“ öffnen, aus- und wieder einschalten.</string>
+    <string name="open_accessibility">Bedienungshilfen öffnen</string>
+    <string name="open_accessibility_off">In den Bedienungshilfen ausschalten</string>
+    <string name="restricted_hint">Wenn Android „Eingeschränkte Einstellung“ meldet: unten die App-Info öffnen, oben rechts auf ⋮ tippen, „Eingeschränkte Einstellungen zulassen“ wählen und es noch einmal versuchen. Das ist nötig, wenn die App nicht aus Google Play installiert wurde.</string>
+    <string name="open_app_info">App-Info öffnen</string>
+    <string name="locked">Vom Startbildschirm aus gesperrt. Dort entsperren, um Einstellungen zu ändern.</string>
+
+    <string name="nav_heading">Navigationstasten</string>
+    <string name="nav_three_button">Dieses Telefon nutzt die Bedienung über 3 Schaltflächen.</string>
+    <string name="nav_two_button">Dieses Telefon nutzt die Bedienung über 2 Schaltflächen.</string>
+    <string name="nav_gesture">Dieses Telefon nutzt die Bedienung über Gesten (Wischen).</string>
+    <string name="nav_unknown">Die Navigationsart dieses Telefons ließ sich nicht lesen.</string>
+    <string name="nav_good">Gut: Die Leiste liegt genau über den eigenen Tasten des Telefons.</string>
+    <string name="nav_advice">Die Bedienung über 3 Schaltflächen wählen. Dann liegt die Leiste genau über den eigenen Tasten des Telefons und fängt deren Tipps ab. Beim Wischen geht ein Wisch vom unteren Rand weiter an der Leiste vorbei. In den Einstellungen nach „Navigation“ suchen, falls die Taste unten sie nicht öffnet.</string>
+    <string name="open_navigation">Navigationseinstellungen öffnen</string>
+</resources>
