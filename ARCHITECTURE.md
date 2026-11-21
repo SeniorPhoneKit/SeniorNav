@@ -46,15 +46,16 @@ for the helper: it says whether the bar is on and how to switch it on.
 
 | Class | Role |
 |---|---|
-| `NavBarService` | The accessibility service. Attaches the bar's window, hides and shows it, presses Back/Home. Listens to window events, screen on/off/unlock broadcasts, and the navigation bar's visibility. |
-| `Bar` | The bar's view (Back left, Home right, or swapped by the helper's choice; always the screen's left/right, also in RTL; each half the width, icon plus word, white on near-black) and its window parameters; reads the system navigation bar height. |
-| `MainActivity` | The helper's screen: status in words and colour, "paused by automation" with Show the bar again, the button order and the bar colour (hidden while locked), the button to Accessibility settings, the "Allow restricted settings" hint (Android 13+), the navigation mode and the advice to use 3-button navigation. Back at the bottom goes home in one tap. |
+| `NavBarService` | The accessibility service. Attaches the bar's window, hides and shows it, presses Back/Home. Listens to window events and screen on/off/unlock broadcasts (to hide over the lock screen) and to the settings. |
+| `Bar` | The bar's view (Back left, Home right, or swapped by the helper's choice; always the screen's left/right, also in RTL; each half the width, icon plus word; dark bar with white, or light bar with near-black and a grey top line) and its window parameters; reads the system navigation bar height. |
+| `MainActivity` | The helper's screen: status in words and colour, "paused by automation" with Show the bar again, the button order and the bar colour (hidden while locked), the button to Accessibility settings, the "Allow restricted settings" hint (Android 13+), the navigation mode and the advice to use 3-button navigation. Back at the bottom goes home in one tap (hidden while the bar is on, see `NavBar`). |
 | `NavStore` | The settings, `paused`, `back_right` and `light_bar`, in one SharedPreferences file that the service, the screen and the receiver share. |
 | `AutomationReceiver` | Exported; BAR_HIDE/BAR_SHOW/BAR_SIDES/BAR_COLOUR write `NavStore`, BACK/HOME go to `NavBarService.perform`. |
 | `Automation` | Pure: action names, which command an action is, the `back` extra (`left`/`right`), the `colour` extra (`dark`/`light`). Unit tested. |
 | `NavSettings` | Reads the enabled-services setting and the navigation mode; opens Accessibility settings, App info and System navigation (no public action exists, so known AOSP screens are tried, then general Settings). |
 | `LauncherLock` | Reads SeniorLauncher's shared lock (`content://app.phueber.seniorlauncher.lock/state`, `locked` 0/1). Locked, the main screen hides its settings buttons. Read-only; unlocking happens on the home screen. |
 | `Ui` | Shared buttons and the screen frame, as in the other Senior apps. |
+| `NavBar` | Whether SeniorNav's Back & Home bar is switched on (the enabled accessibility services list it). While it is, the pinned Back button is hidden, since the bar already has Back and Home; re-checked whenever a screen gets focus. Pure part unit tested. |
 | `Palette` | Pure: the colours by role (the family's Light look plus the bar) and the WCAG contrast check. Unit tested. |
 | `BarHeight` | Pure: which height source wins, and the 48dp floor. Unit tested. |
 | `NavMode` | Pure: the raw navigation-mode value to 3-button / 2-button / gesture / unknown. Unit tested. |
