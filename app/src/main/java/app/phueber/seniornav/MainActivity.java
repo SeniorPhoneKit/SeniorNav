@@ -43,8 +43,9 @@ public final class MainActivity extends Activity {
         boolean locked = LauncherLock.locked(this);
         BarStatus status = BarStatus.of(NavSettings.serviceTurnedOn(this), NavBarService.isRunning());
 
-        content.addView(statusCard(status), Ui.fullWidth(this, 8));
-        if (NavStore.paused(this)) addPaused();
+        boolean paused = NavStore.paused(this);
+        content.addView(statusCard(status, paused), Ui.fullWidth(this, 8));
+        if (paused) addPaused();
         content.addView(Ui.text(this, getString(R.string.what_it_does), Ui.TEXT_BODY),
                 Ui.fullWidth(this, 16));
 
@@ -114,13 +115,14 @@ public final class MainActivity extends Activity {
         return b;
     }
 
-    private TextView statusCard(BarStatus status) {
+    private TextView statusCard(BarStatus status, boolean paused) {
         int text, fill, stroke;
         switch (status) {
             case ON:
-                text = R.string.status_on;
-                fill = Ui.color(Palette.Role.GREEN_LIGHT);
-                stroke = Ui.color(Palette.Role.GREEN);
+                // paused: the bar is hidden right now, so do not say "on"
+                text = paused ? R.string.status_paused : R.string.status_on;
+                fill = Ui.color(paused ? Palette.Role.RED_LIGHT : Palette.Role.GREEN_LIGHT);
+                stroke = Ui.color(paused ? Palette.Role.RED : Palette.Role.GREEN);
                 break;
             case STUCK:
                 text = R.string.status_stuck;
