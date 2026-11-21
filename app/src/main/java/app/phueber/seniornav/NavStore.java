@@ -33,6 +33,7 @@ final class NavStore {
 
     static void setPaused(Context c, boolean paused) {
         prefs(c).edit().putBoolean(KEY_PAUSED, paused).apply();
+        BarProvider.notifyChanged(c); // the bar shows or hides: other apps' Back follows
     }
 
     static boolean backRight(Context c) {

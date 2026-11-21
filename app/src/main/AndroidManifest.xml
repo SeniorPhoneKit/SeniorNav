@@ -46,6 +46,14 @@
             </intent-filter>
         </receiver>
 
+        <!-- Whether the bar is on screen, for the other Senior apps' Back button;
+             read-only, no permission (the state is visible anyway), see BarProvider. -->
+        <provider
+            android:name=".BarProvider"
+            android:authorities="app.phueber.seniornav.bar"
+            android:exported="true"
+            tools:ignore="ExportedContentProvider" />
+
         <!-- The bar. Bound only by the system (BIND_ACCESSIBILITY_SERVICE). -->
         <service
             android:name=".NavBarService"

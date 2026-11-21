@@ -2,8 +2,12 @@ package app.phueber.seniornav;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.database.ContentObserver;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -18,6 +22,16 @@ public final class MainActivity extends Activity {
     private LinearLayout content;
     /** Automation may pause the bar or swap its sides while this screen is open. */
     private final SharedPreferences.OnSharedPreferenceChangeListener settings = (p, key) -> build();
+    /**
+     * The helper may lock or unlock on the home screen, or the bar's window
+     * may come or go, while this screen is open (split screen, automation):
+     * show it at once, not at the next resume.
+     */
+    private final ContentObserver changes = new ContentObserver(new Handler(Looper.getMainLooper())) {
+        @Override public void onChange(boolean selfChange) {
+            build();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,19 +43,33 @@ public final class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         NavStore.prefs(this).registerOnSharedPreferenceChangeListener(settings);
+        observe(LauncherLock.STATE);
+        observe(BarProvider.STATE);
         build();
     }
 
     @Override
     protected void onPause() {
         NavStore.prefs(this).unregisterOnSharedPreferenceChangeListener(settings);
+        getContentResolver().unregisterContentObserver(changes);
         super.onPause();
+    }
+
+    private void observe(Uri uri) {
+        try {
+            getContentResolver().registerContentObserver(uri, false, changes);
+        } catch (RuntimeException ignored) {
+            // SeniorLauncher not installed: nothing to watch, the resume check stays
+        }
     }
 
     private void build() {
         content.removeAllViews();
         boolean locked = LauncherLock.locked(this);
-        BarStatus status = BarStatus.of(NavSettings.serviceTurnedOn(this), NavBarService.isRunning());
+        // "On" only with the window attached: a running service whose window the
+        // system refused shows no bar, so it reads as "turned on but not running".
+        BarStatus status = BarStatus.of(NavSettings.serviceTurnedOn(this),
+                NavBarService.isRunning() && NavBarService.isAttached());
 
         boolean paused = NavStore.paused(this);
         content.addView(statusCard(status, paused), Ui.fullWidth(this, 8));

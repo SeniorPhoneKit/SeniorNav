@@ -12,6 +12,7 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -41,6 +42,21 @@ public final class NavBarService extends AccessibilityService {
         return running;
     }
 
+    /** Whether the bar's window is attached right now (it may still be hidden). */
+    private static volatile boolean windowAttached;
+
+    static boolean isAttached() {
+        return windowAttached;
+    }
+
+    /**
+     * Whether the bar is on screen for apps to rely on: running, its window
+     * attached, not paused by automation. Published by BarProvider.
+     */
+    static boolean barVisible(Context c) {
+        return running && windowAttached && !NavStore.paused(c);
+    }
+
     /** The connected service, for Back/Home from automation; null when not running. */
     @SuppressLint("StaticFieldLeak") // set on connect, cleared in stop(): never outlives the service
     private static volatile NavBarService instance;
@@ -56,6 +72,10 @@ public final class NavBarService extends AccessibilityService {
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable refresh = this::refresh;
+    /** A refused window is tried again later (AttachRetry), apart from refresh's own scheduling. */
+    private final Runnable retryAttach = this::refresh;
+    private int failedAttaches;
+    private long nextAttachAt;
 
     private WindowManager wm;
     private FrameLayout root;   // the attached window's view, always visible
@@ -97,6 +117,7 @@ public final class NavBarService extends AccessibilityService {
         instance = this;
         attach();
         refresh();
+        BarProvider.notifyChanged(this);
     }
 
     @Override
@@ -140,12 +161,14 @@ public final class NavBarService extends AccessibilityService {
         instance = null;
         NavStore.prefs(this).unregisterOnSharedPreferenceChangeListener(settings);
         handler.removeCallbacks(refresh);
+        handler.removeCallbacks(retryAttach);
         try {
             unregisterReceiver(screen);
         } catch (IllegalArgumentException ignored) {
             // never registered
         }
         detach();
+        BarProvider.notifyChanged(this);
     }
 
     private void scheduleRefresh() {
@@ -173,11 +196,21 @@ public final class NavBarService extends AccessibilityService {
         try {
             wm.addView(root, Bar.params(barHeight, false));
             attached = true;
+            windowAttached = true;
+            failedAttaches = 0;
+            handler.removeCallbacks(retryAttach);
+            BarProvider.notifyChanged(this);
         } catch (RuntimeException e) {
-            // the window manager refused (service going away); the next
-            // configuration change or reconnect tries again
+            // The window manager refused. The service is still running, so
+            // without a retry there would be no bar until the next reconnect:
+            // try again later, waiting longer each time (refresh does it).
             root = null;
             bar = null;
+            failedAttaches++;
+            long wait = AttachRetry.delayMs(failedAttaches);
+            nextAttachAt = SystemClock.uptimeMillis() + wait;
+            handler.removeCallbacks(retryAttach);
+            handler.postDelayed(retryAttach, wait);
         }
     }
 
@@ -189,13 +222,17 @@ public final class NavBarService extends AccessibilityService {
             // already gone
         }
         attached = false;
+        windowAttached = false;
         visible = false;
         root = null;
         bar = null;
+        BarProvider.notifyChanged(this);
     }
 
     private void refresh() {
-        if (!running || !attached) return;
+        if (!running) return;
+        if (!attached && SystemClock.uptimeMillis() >= nextAttachAt) attach(); // refused before
+        if (!attached) return;
         KeyguardManager km = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
         boolean locked = km != null && km.isKeyguardLocked();
         setVisible(!locked && !NavStore.paused(this));

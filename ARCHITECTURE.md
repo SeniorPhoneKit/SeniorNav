@@ -33,7 +33,10 @@ for the helper: it says whether the bar is on and how to switch it on.
   Back closes the keyboard like the system button does.
 - **Hidden, not removed.** The window is attached once per connection and
   configuration. Hiding makes the bar invisible and the window
-  `FLAG_NOT_TOUCHABLE`, so every touch goes to what is below.
+  `FLAG_NOT_TOUCHABLE`, so every touch goes to what is below. If the window
+  manager refuses the window, it is tried again after 1 s, 2 s, 4 s, ... at
+  most every minute (`AttachRetry`; also at the next `refresh()` once that
+  wait is over), never in a tight loop.
 - **Minimal events.** The service config asks for `typeWindowsChanged` and
   `typeWindowStateChanged` only, as a cue to re-check the lock screen, and
   `canRetrieveWindowContent` is off: the service cannot read window content or
@@ -55,7 +58,9 @@ for the helper: it says whether the bar is on and how to switch it on.
 | `NavSettings` | Reads the enabled-services setting and the navigation mode; opens Accessibility settings, App info and System navigation (no public action exists, so known AOSP screens are tried, then general Settings). |
 | `LauncherLock` | Reads SeniorLauncher's shared lock (`content://app.phueber.seniorlauncher.lock/state`, `locked` 0/1). Locked, the main screen hides its settings buttons. Read-only; unlocking happens on the home screen. |
 | `Ui` | Shared buttons and the screen frame, as in the other Senior apps. |
-| `NavBar` | Whether SeniorNav's Back & Home bar is switched on (the enabled accessibility services list it). While it is, the pinned Back button is hidden, since the bar already has Back and Home; re-checked whenever a screen gets focus. Pure part unit tested. |
+| `NavBar` | Whether the bar is on screen (`NavBarService.barVisible`, the rule `BarProvider` publishes). While it is, the pinned Back button is hidden, since the bar already has Back and Home; shown again while it is paused or not running. Re-checked whenever a screen gets focus and on every `BarProvider` change while attached. |
+| `BarProvider` | Exported, read-only: tells the other Senior apps whether the bar is on screen, so their Back button follows it (see Bar state for other apps). |
+| `AttachRetry` | Pure: the growing wait before attaching a refused window again. Unit tested. |
 | `Palette` | Pure: the colours by role (the family's Light look plus the bar) and the WCAG contrast check. Unit tested. |
 | `BarHeight` | Pure: which height source wins, and the 48dp floor. Unit tested. |
 | `NavMode` | Pure: the raw navigation-mode value to 3-button / 2-button / gesture / unknown. Unit tested. |
@@ -91,19 +96,38 @@ Automation apps (Trigly, Tasker, ...) send explicit broadcasts to the exported
 
 ## Status on the main screen
 
-"On" means the service is connected in this process (`NavBarService.isRunning`).
-If Android lists the service as enabled but it is not connected (it crashed and
-Android stopped it, or a battery killer ended it), the screen says "turned on
-but not running" and tells the helper to switch it off and on again. The screen
+"On" means the service is connected in this process (`NavBarService.isRunning`)
+and its window is attached (`isAttached`). If Android lists the service as
+enabled but it is not connected (it crashed and Android stopped it, or a battery
+killer ended it), or its window was refused, the screen says "turned on but not
+running" and tells the helper to switch it off and on again. The screen
 rebuilds on every resume, so it shows the result of what the helper just did in
-Settings.
+Settings, and while open on every change of the settings, of SeniorLauncher's
+lock (a `ContentObserver` on its lock uri) and of the bar's state (on
+`BarProvider`'s uri). The lock query stays on the main thread: it is one row
+from a local provider, and an asynchronous read would show the unlocked
+buttons for a moment.
+
+## Bar state for other apps
+
+`BarProvider` answers `content://app.phueber.seniornav.bar/state` with one row,
+column `visible`: 1 while the service runs, its window is attached and
+automation has not paused it, else 0 (the lock screen does not count: no app's
+screen shows there). Every change of these notifies that uri (attach, detach,
+connect, stop, `NavStore.setPaused`). SeniorLauncher, SeniorPhone and
+SeniorAlert hide their pinned Back while it is 1 and watch the uri while their
+Back is attached, so a pause by automation brings their Back back at once;
+without SeniorNav (or an older one) they fall back to the enabled-services
+list. insert/update/delete throw. No permission, like SeniorLauncher's lock
+provider: the state is visible on screen anyway.
 
 ## Permissions
 
 None. An accessibility overlay needs no permission beyond the helper enabling
 the service; the service is bound only by the system
 (`BIND_ACCESSIBILITY_SERVICE`). No internet. The `<queries>` entry only makes
-SeniorLauncher's lock provider visible.
+SeniorLauncher's lock provider visible. `BarProvider` is exported without a
+permission (see Bar state for other apps).
 
 ## Known limits
 

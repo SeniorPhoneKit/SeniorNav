@@ -1,45 +1,52 @@
 package app.phueber.seniornav;
 
 import android.content.Context;
-import android.provider.Settings;
+import android.database.ContentObserver;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 
-import java.util.Locale;
-
 /**
- * Whether SeniorNav's "Back & Home" bar is switched on. Its big Back and Home
- * sit at the bottom of every screen, so our own pinned Back button would only
- * repeat them: it is hidden while the bar is on and comes back when the bar is
- * turned off (checked whenever the screen gets focus). A bar paused by
- * automation still counts as on: pausing is for full-screen apps, not ours.
+ * Whether the "Back & Home" bar is on screen. Its big Back and Home sit at the
+ * bottom of every screen, so the pinned Back button would only repeat them: it
+ * is hidden while the bar shows and comes back while it does not, also while
+ * automation has paused it (then the bar's Back is not there to use). The same
+ * rule the other Senior apps follow through {@link BarProvider}; here, in the
+ * bar's own process, it is read directly.
  */
 final class NavBar {
     private NavBar() {}
 
-    /** Pure: whether the enabled-services setting lists SeniorNav's bar service. */
-    static boolean listed(String enabledServices) {
-        if (enabledServices == null) return false;
-        for (String entry : enabledServices.split(":")) {
-            if (entry.trim().toLowerCase(Locale.ROOT).startsWith("app.phueber.seniornav/")) return true;
-        }
-        return false;
-    }
-
     static boolean on(Context c) {
-        try {
-            return listed(Settings.Secure.getString(c.getContentResolver(),
-                    Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES));
-        } catch (RuntimeException e) {
-            return false; // unreadable: keep our own Back
-        }
+        return NavBarService.barVisible(c);
     }
 
-    /** Hides {@code back} while the bar is on, re-checked each time the window gets focus. */
+    /**
+     * Hides {@code back} while the bar is on: re-checked each time the window
+     * gets focus, and on every change BarProvider announces while attached.
+     */
     static void hideWhileOn(View back) {
         Runnable update = () -> back.setVisibility(on(back.getContext()) ? View.GONE : View.VISIBLE);
         update.run();
         back.getViewTreeObserver().addOnWindowFocusChangeListener(focused -> {
             if (focused) update.run();
         });
+        ContentObserver observer = new ContentObserver(new Handler(Looper.getMainLooper())) {
+            @Override public void onChange(boolean selfChange) {
+                update.run();
+            }
+        };
+        View.OnAttachStateChangeListener watch = new View.OnAttachStateChangeListener() {
+            @Override public void onViewAttachedToWindow(View v) {
+                v.getContext().getContentResolver().registerContentObserver(BarProvider.STATE, false, observer);
+                update.run();
+            }
+
+            @Override public void onViewDetachedFromWindow(View v) {
+                v.getContext().getContentResolver().unregisterContentObserver(observer);
+            }
+        };
+        back.addOnAttachStateChangeListener(watch);
+        if (back.isAttachedToWindow()) watch.onViewAttachedToWindow(back);
     }
 }
