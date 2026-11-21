@@ -8,23 +8,15 @@ package app.phueber.seniornav;
  * - Never while a keyboard is up: in 3-button mode the system bar then shows
  *   its own "close keyboard" button, and the bar must not cover the bottom
  *   keyboard row.
- * - Not while the system navigation bar is hidden (full-screen video, games).
- *   Best effort: see {@link #navBarHidden}.
+ *
+ * Full-screen video is not detected: an accessibility overlay is told the
+ * navigation bar is hidden even when it is not (seen on Android 15), so that
+ * signal would hide the bar for good. See ARCHITECTURE.md.
  */
 final class BarRules {
     private BarRules() {}
 
-    static boolean show(boolean keyguardLocked, boolean inputMethodShown, boolean navBarHidden) {
-        return !keyguardLocked && !inputMethodShown && !navBarHidden;
-    }
-
-    /**
-     * Whether the system navigation bar is hidden, from what the bar's own
-     * window was last told (insets visibility on Android 11+, system UI
-     * visibility flags before). Null means nothing was reported yet, which
-     * counts as visible: the bar must not vanish on a guess.
-     */
-    static boolean navBarHidden(Boolean reportedVisible) {
-        return reportedVisible != null && !reportedVisible;
+    static boolean show(boolean keyguardLocked, boolean inputMethodShown) {
+        return !keyguardLocked && !inputMethodShown;
     }
 }

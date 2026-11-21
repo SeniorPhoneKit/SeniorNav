@@ -58,9 +58,8 @@ buttons; unlock on the home screen to change them.
 
 - In landscape the bar stays at the bottom, also on phones whose own buttons
   move to the side.
-- During full-screen videos the bar tries to step aside together with the
-  phone's own buttons. Not every phone tells the app about this; then the bar
-  stays.
+- During full-screen videos the bar stays and covers the bottom edge of the
+  picture.
 
 ## Privacy
 
@@ -137,8 +136,7 @@ Einstellungstasten aus; zum Ändern auf dem Startbildschirm entsperren.
 
 - Im Querformat bleibt die Leiste unten, auch auf Telefonen, deren eigene Tasten
   dann an die Seite wandern.
-- Bei Videos im Vollbild versucht die Leiste, zusammen mit den eigenen Tasten
-  Platz zu machen. Nicht jedes Telefon teilt der App das mit; dann bleibt sie.
+- Bei Videos im Vollbild bleibt die Leiste und verdeckt den unteren Bildrand.
 
 ## Datenschutz
 

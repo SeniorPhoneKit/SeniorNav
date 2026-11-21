@@ -7,29 +7,18 @@ import org.junit.Test;
 
 public class BarRulesTest {
     @Test public void showsWhenNothingIsInTheWay() {
-        assertTrue(BarRules.show(false, false, false));
+        assertTrue(BarRules.show(false, false));
     }
 
     @Test public void hidesOnTheLockScreen() {
-        assertFalse(BarRules.show(true, false, false));
+        assertFalse(BarRules.show(true, false));
     }
 
     @Test public void hidesWhileAKeyboardIsUp() {
-        assertFalse(BarRules.show(false, true, false));
-    }
-
-    @Test public void hidesWhenTheSystemBarIsGone() {
-        assertFalse(BarRules.show(false, false, true));
+        assertFalse(BarRules.show(false, true));
     }
 
     @Test public void anyReasonIsEnoughToHide() {
-        assertFalse(BarRules.show(true, true, true));
-        assertFalse(BarRules.show(true, true, false));
-    }
-
-    @Test public void navBarCountsAsVisibleUntilReported() {
-        assertFalse(BarRules.navBarHidden(null));
-        assertFalse(BarRules.navBarHidden(true));
-        assertTrue(BarRules.navBarHidden(false));
+        assertFalse(BarRules.show(true, true));
     }
 }

@@ -28,12 +28,10 @@ for the helper: it says whether the bar is on and how to switch it on.
   `config_navBarInteractionMode`; best effort) and asks the helper to switch.
 - **Out of the way when it must be** (`BarRules`): hidden over the lock screen
   (`KeyguardManager`), while a keyboard is up (an `AccessibilityWindowInfo` of
-  `TYPE_INPUT_METHOD` in `getWindows()`), and while the system navigation bar is
-  hidden (best effort, see below).
+  `TYPE_INPUT_METHOD` in `getWindows()`).
 - **Hidden, not removed.** The window is attached once per connection and
   configuration. Hiding makes the bar invisible and the window
-  `FLAG_NOT_TOUCHABLE`, so every touch goes to what is below, while the window
-  keeps receiving the navigation bar's visibility.
+  `FLAG_NOT_TOUCHABLE`, so every touch goes to what is below.
 - **Minimal events.** The service config asks for `typeWindowsChanged` and
   `typeWindowStateChanged` only, with `flagRetrieveInteractiveWindows`.
   `canRetrieveWindowContent` is on because `getWindows()` requires it; window
@@ -88,14 +86,13 @@ SeniorLauncher's lock provider visible.
   shows again when it closes. The system bar's own "close keyboard" button is
   usable meanwhile. A keyboard that does not report itself as an input-method
   window (rare) would be covered at its bottom row.
-- **Full-screen video and games.** Android has no direct API for "the app in
-  front hid the navigation bar". The bar's own window listens to the
-  navigation-bar insets visibility (Android 11+) or the global system UI flags
-  (before). Whether an accessibility overlay is told this reliably varies by
-  version and maker: best effort. When nothing is reported the bar stays. The
-  window list is not used for this, because a window fully covered by the bar
-  (the system navigation bar itself) is dropped from that list, which would make
-  the bar hide itself.
+- **Full-screen video and games: the bar stays** and covers the bottom of the
+  picture. Android has no direct API for "the app in front hid the navigation
+  bar". The bar window's own insets do not work: on the Android 15 emulator an
+  accessibility overlay is told `navigationBars()` is not visible while the
+  system bar is plainly on screen, so the bar hid itself for good. The window
+  list does not work either: a window fully covered by the bar (the system
+  navigation bar itself) is dropped from it.
 - **OEM battery killers.** Some makers (Xiaomi, Huawei, Samsung, Oppo, ...) stop
   background apps, including accessibility services, or switch them off after
   an update. The main screen then says "turned on but not running". The helper

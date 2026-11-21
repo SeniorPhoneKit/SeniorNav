@@ -39,8 +39,7 @@ final class Bar {
     /**
      * Window parameters for a bar of this height, at the bottom, full width.
      * Hidden, the window stays attached but lets every touch through to what
-     * is below (FLAG_NOT_TOUCHABLE) and draws nothing, so it keeps being told
-     * whether the system navigation bar is visible.
+     * is below (FLAG_NOT_TOUCHABLE) and draws nothing.
      */
     static WindowManager.LayoutParams params(int heightPx, boolean visible) {
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams(

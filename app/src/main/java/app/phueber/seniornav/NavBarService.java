@@ -12,7 +12,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityWindowInfo;
@@ -29,8 +28,7 @@ import java.util.List;
  * window list tells whether a keyboard is up; window content is never read.
  *
  * The bar's window is attached once and stays attached while the service
- * runs; hiding makes it invisible and untouchable instead of removing it, so
- * it keeps receiving the navigation bar's visibility (see onInsets).
+ * runs; hiding makes it invisible and untouchable instead of removing it.
  */
 public final class NavBarService extends AccessibilityService {
     /** Whether the service is connected right now (for the main screen). */
@@ -53,7 +51,6 @@ public final class NavBarService extends AccessibilityService {
     private boolean attached;
     private boolean visible;
     /** What the window was last told about the system navigation bar; null: nothing yet. */
-    private Boolean navBarVisible;
 
     private final BroadcastReceiver screen = new BroadcastReceiver() {
         @Override public void onReceive(Context c, Intent i) {
@@ -146,7 +143,6 @@ public final class NavBarService extends AccessibilityService {
         root = new FrameLayout(this);
         root.addView(bar, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        listenForNavBar(root);
         visible = false;
         try {
             wm.addView(root, Bar.params(barHeight, false));
@@ -172,39 +168,11 @@ public final class NavBarService extends AccessibilityService {
         bar = null;
     }
 
-    /**
-     * Best effort: whether the app in front has hidden the system navigation
-     * bar (full-screen video, games). Android has no direct API for this. On
-     * Android 11+ every window is sent the insets state, including the
-     * navigation bar's visibility; before that, the global system UI flags.
-     * Neither is guaranteed for an accessibility overlay on every phone; when
-     * nothing is reported, the bar simply stays.
-     */
-    @SuppressWarnings("deprecation") // system UI flags: the only signal before Android 11
-    private void listenForNavBar(View v) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            v.setOnApplyWindowInsetsListener((view, insets) -> {
-                onNavBar(insets.isVisible(WindowInsets.Type.navigationBars()));
-                return insets;
-            });
-        } else {
-            v.setOnSystemUiVisibilityChangeListener(flags ->
-                    onNavBar((flags & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0));
-        }
-    }
-
-    private void onNavBar(boolean isVisible) {
-        if (navBarVisible != null && navBarVisible == isVisible) return;
-        navBarVisible = isVisible;
-        scheduleRefresh();
-    }
-
     private void refresh() {
         if (!running || !attached) return;
         KeyguardManager km = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
         boolean locked = km != null && km.isKeyguardLocked();
-        setVisible(BarRules.show(locked, inputMethodShown(),
-                BarRules.navBarHidden(navBarVisible)));
+        setVisible(BarRules.show(locked, inputMethodShown()));
     }
 
     /** A keyboard (input method) window is on screen. */
