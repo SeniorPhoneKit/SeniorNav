@@ -1,11 +1,13 @@
 package app.phueber.seniornav;
 
 import android.accessibilityservice.AccessibilityService;
+import android.annotation.SuppressLint;
 import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Handler;
@@ -22,8 +24,9 @@ import android.widget.FrameLayout;
  * system navigation bar (TYPE_ACCESSIBILITY_OVERLAY).
  *
  * It listens only to window changes (no content, no text, no key events) and
- * cannot read window content. Its only rule: the bar is hidden over the lock
- * screen, whose own buttons and PIN pad must work. It stays over the keyboard,
+ * cannot read window content. The bar is hidden over the lock screen, whose
+ * own buttons and PIN pad must work, and while an automation app has paused
+ * it (NavStore.paused, BAR_HIDE). It stays over the keyboard,
  * where it covers only the system bar below the keys (Back then closes the
  * keyboard, as the system button does).
  *
@@ -38,6 +41,16 @@ public final class NavBarService extends AccessibilityService {
         return running;
     }
 
+    /** The connected service, for Back/Home from automation; null when not running. */
+    @SuppressLint("StaticFieldLeak") // set on connect, cleared in stop(): never outlives the service
+    private static volatile NavBarService instance;
+
+    /** Presses Back or Home through the running service; false if it is not running. */
+    static boolean perform(int globalAction) {
+        NavBarService s = instance;
+        return s != null && s.performGlobalAction(globalAction);
+    }
+
     /** Window events come in bursts during a transition; decide once it settles. */
     private static final long SETTLE_MS = 150;
 
@@ -50,6 +63,16 @@ public final class NavBarService extends AccessibilityService {
     private int barHeight;
     private boolean attached;
     private boolean visible;
+
+    /** Settings changed (by the screen or by automation): show them at once. */
+    private final SharedPreferences.OnSharedPreferenceChangeListener settings = (p, key) -> {
+        if (!running) return;
+        if (key == null || NavStore.KEY_BACK_RIGHT.equals(key)) {
+            detach(); // a new bar with the buttons in the new order
+            attach();
+        }
+        refresh();
+    };
 
     private final BroadcastReceiver screen = new BroadcastReceiver() {
         @Override public void onReceive(Context c, Intent i) {
@@ -70,6 +93,8 @@ public final class NavBarService extends AccessibilityService {
         } else {
             registerReceiver(screen, f);
         }
+        NavStore.prefs(this).registerOnSharedPreferenceChangeListener(settings);
+        instance = this;
         attach();
         refresh();
     }
@@ -112,6 +137,8 @@ public final class NavBarService extends AccessibilityService {
     private void stop() {
         if (!running) return;
         running = false;
+        instance = null;
+        NavStore.prefs(this).unregisterOnSharedPreferenceChangeListener(settings);
         handler.removeCallbacks(refresh);
         try {
             unregisterReceiver(screen);
@@ -129,7 +156,7 @@ public final class NavBarService extends AccessibilityService {
     private void attach() {
         if (attached || wm == null) return;
         barHeight = Bar.height(this, wm);
-        bar = Bar.view(this, barHeight, new Bar.Actions() {
+        bar = Bar.view(this, barHeight, NavStore.backRight(this), new Bar.Actions() {
             @Override public void back() {
                 performGlobalAction(GLOBAL_ACTION_BACK);
             }
@@ -171,7 +198,7 @@ public final class NavBarService extends AccessibilityService {
         if (!running || !attached) return;
         KeyguardManager km = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
         boolean locked = km != null && km.isKeyguardLocked();
-        setVisible(!locked);
+        setVisible(!locked && !NavStore.paused(this));
     }
 
     private void setVisible(boolean show) {

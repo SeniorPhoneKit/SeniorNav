@@ -1,6 +1,7 @@
 package app.phueber.seniornav;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.widget.Button;
@@ -15,6 +16,8 @@ import android.widget.TextView;
  */
 public final class MainActivity extends Activity {
     private LinearLayout content;
+    /** Automation may pause the bar or swap its sides while this screen is open. */
+    private final SharedPreferences.OnSharedPreferenceChangeListener settings = (p, key) -> build();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +28,14 @@ public final class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        NavStore.prefs(this).registerOnSharedPreferenceChangeListener(settings);
         build();
+    }
+
+    @Override
+    protected void onPause() {
+        NavStore.prefs(this).unregisterOnSharedPreferenceChangeListener(settings);
+        super.onPause();
     }
 
     private void build() {
@@ -34,6 +44,7 @@ public final class MainActivity extends Activity {
         BarStatus status = BarStatus.of(NavSettings.serviceTurnedOn(this), NavBarService.isRunning());
 
         content.addView(statusCard(status), Ui.fullWidth(this, 8));
+        if (NavStore.paused(this)) addPaused();
         content.addView(Ui.text(this, getString(R.string.what_it_does), Ui.TEXT_BODY),
                 Ui.fullWidth(this, 16));
 
@@ -61,7 +72,46 @@ public final class MainActivity extends Activity {
             }
         }
 
+        if (!locked) addSidesSection();
         addNavigationSection(NavSettings.navMode(this), locked);
+    }
+
+    /**
+     * An automation app (Trigly, ...) has paused the bar. Said in words, with a
+     * way back. Shown also while locked: showing the bar again only restores
+     * the normal state.
+     */
+    private void addPaused() {
+        TextView t = Ui.bold(this, getString(R.string.paused), Ui.TEXT_BODY);
+        int p = Ui.dp(this, 16);
+        t.setPadding(p, p, p, p);
+        t.setBackground(Ui.card(this, Ui.color(Palette.Role.CARD), Ui.color(Palette.Role.TEXT)));
+        t.setAccessibilityLiveRegion(TextView.ACCESSIBILITY_LIVE_REGION_POLITE);
+        content.addView(t, Ui.fullWidth(this, 12));
+        Button show = Ui.button(this, getString(R.string.show_again), Palette.Role.GREEN);
+        show.setOnClickListener(v -> NavStore.setPaused(this, false));
+        content.addView(show, Ui.fullWidth(this, 12));
+    }
+
+    /** Which side Back is on: two big buttons, the chosen one says so in words. */
+    private void addSidesSection() {
+        TextView heading = Ui.bold(this, getString(R.string.sides_heading), 24);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) heading.setAccessibilityHeading(true);
+        content.addView(heading, Ui.fullWidth(this, 32));
+        boolean right = NavStore.backRight(this);
+        content.addView(Ui.text(this, getString(right ? R.string.sides_now_right : R.string.sides_now_left),
+                Ui.TEXT_BODY), Ui.fullWidth(this, 8));
+        content.addView(sideButton(false, !right), Ui.fullWidth(this, 12));
+        content.addView(sideButton(true, right), Ui.fullWidth(this, 12));
+    }
+
+    private Button sideButton(boolean backRight, boolean chosen) {
+        String label = getString(backRight ? R.string.sides_back_right : R.string.sides_back_left);
+        Button b = chosen
+                ? Ui.button(this, getString(R.string.sides_chosen, label), Palette.Role.BLUE)
+                : Ui.outlined(this, label);
+        b.setOnClickListener(v -> NavStore.setBackRight(this, backRight));
+        return b;
     }
 
     private TextView statusCard(BarStatus status) {

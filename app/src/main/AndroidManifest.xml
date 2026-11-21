@@ -29,6 +29,22 @@
             </intent-filter>
         </activity>
 
+        <!-- Automation (Trigly, Tasker, ...): pause/show the bar, button sides, Back, Home.
+             Exported without a permission on purpose: none of it needs one (an app can
+             already send Home with an intent), see ARCHITECTURE.md, Automation. -->
+        <receiver
+            android:name=".AutomationReceiver"
+            android:exported="true"
+            tools:ignore="ExportedReceiver">
+            <intent-filter>
+                <action android:name="app.phueber.seniornav.action.BAR_HIDE" />
+                <action android:name="app.phueber.seniornav.action.BAR_SHOW" />
+                <action android:name="app.phueber.seniornav.action.BAR_SIDES" />
+                <action android:name="app.phueber.seniornav.action.BACK" />
+                <action android:name="app.phueber.seniornav.action.HOME" />
+            </intent-filter>
+        </receiver>
+
         <!-- The bar. Bound only by the system (BIND_ACCESSIBILITY_SERVICE). -->
         <service
             android:name=".NavBarService"

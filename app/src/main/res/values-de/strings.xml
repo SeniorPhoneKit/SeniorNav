@@ -21,6 +21,16 @@
     <string name="open_app_info">App-Info öffnen</string>
     <string name="locked">Vom Startbildschirm aus gesperrt. Dort entsperren, um Einstellungen zu ändern.</string>
 
+    <string name="paused">Die Leiste ist durch Automatisierung pausiert: Eine andere App (zum Beispiel Trigly) hat sie vorübergehend ausgeblendet. Sie kommt zurück, wenn diese App sie wieder einblendet, oder mit der Taste unten.</string>
+    <string name="show_again">Leiste wieder zeigen</string>
+
+    <string name="sides_heading">Reihenfolge der Tasten</string>
+    <string name="sides_now_left">Jetzt: Zurück links, Start rechts.</string>
+    <string name="sides_now_right">Jetzt: Start links, Zurück rechts.</string>
+    <string name="sides_back_left">Zurück links</string>
+    <string name="sides_back_right">Zurück rechts</string>
+    <string name="sides_chosen">✓ %1$s (gewählt)</string>
+
     <string name="nav_heading">Navigationstasten</string>
     <string name="nav_three_button">Dieses Telefon nutzt die Bedienung über 3 Schaltflächen.</string>
     <string name="nav_two_button">Dieses Telefon nutzt die Bedienung über 2 Schaltflächen.</string>

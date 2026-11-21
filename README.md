@@ -45,6 +45,8 @@ Needs Android 8.0 or newer.
    from the bottom edge still goes past the bar.
 5. If the buttons are still too small, make everything bigger in Settings >
    Display > **Display size**.
+6. Under **Button order**, choose **Back on the left** (the default) or **Back
+   on the right**. The bar changes at once.
 
 If the app later says **"turned on but not running"**, Android has stopped it:
 switch it off and on again in accessibility settings. Some phone makers stop
@@ -59,7 +61,30 @@ buttons; unlock on the home screen to change them.
 - In landscape the bar stays at the bottom, also on phones whose own buttons
   move to the side.
 - During full-screen videos the bar stays and covers the bottom edge of the
-  picture.
+  picture. An automation app can pause it meanwhile (see below).
+
+## Automation (Trigly, Tasker, …)
+
+Other apps can control the bar, for example Trigly or Tasker: hide it while a
+video app is open and show it again afterwards. Each command is a broadcast to
+the package `app.phueber.seniornav`; extras are text.
+
+| Send mode | Action | Extras | What it does |
+|---|---|---|---|
+| Broadcast | `app.phueber.seniornav.action.BAR_HIDE` | none | Pauses the bar: hidden until `BAR_SHOW`, also after a restart |
+| Broadcast | `app.phueber.seniornav.action.BAR_SHOW` | none | Shows the paused bar again |
+| Broadcast | `app.phueber.seniornav.action.BAR_SIDES` | `back` = `left` or `right` | Puts Back on that side, Home on the other |
+| Broadcast | `app.phueber.seniornav.action.BACK` | none | Presses Back (only while the bar's service is on) |
+| Broadcast | `app.phueber.seniornav.action.HOME` | none | Presses Home (only while the bar's service is on) |
+
+While the bar is paused, the app's screen says **"paused by automation"** and
+has a button **Show the bar again**, also while SeniorLauncher is locked. On the
+lock screen the bar is hidden anyway. Other values are ignored.
+
+**Example (Trigly):** trigger *App opened: YouTube*, action *Fire intent*, send
+mode *Broadcast*, action `app.phueber.seniornav.action.BAR_HIDE`, package
+`app.phueber.seniornav`. A second rule with *App closed: YouTube* sends
+`app.phueber.seniornav.action.BAR_SHOW`.
 
 ## Privacy
 
@@ -122,6 +147,8 @@ Benötigt Android 8.0 oder neuer.
    Leiste vorbei.
 5. Sind die Tasten noch zu klein, in Einstellungen > Display die
    **Anzeigegröße** erhöhen.
+6. Unter **Reihenfolge der Tasten** **Zurück links** (Standard) oder **Zurück
+   rechts** wählen. Die Leiste ändert sich sofort.
 
 Zeigt die App später **„eingeschaltet, läuft aber nicht“**, hat Android sie
 angehalten: in den Bedienungshilfen aus- und wieder einschalten. Manche
@@ -136,6 +163,32 @@ Einstellungstasten aus; zum Ändern auf dem Startbildschirm entsperren.
 - Im Querformat bleibt die Leiste unten, auch auf Telefonen, deren eigene Tasten
   dann an die Seite wandern.
 - Bei Videos im Vollbild bleibt die Leiste und verdeckt den unteren Bildrand.
+  Eine Automatisierungs-App kann sie solange pausieren (siehe unten).
+
+## Automatisierung (Trigly, Tasker, …)
+
+Andere Apps können die Leiste steuern, zum Beispiel Trigly oder Tasker: sie
+ausblenden, solange eine Video-App offen ist, und danach wieder einblenden.
+Jeder Befehl ist ein Broadcast an das Paket `app.phueber.seniornav`; Extras sind
+Text.
+
+| Sendeart | Aktion | Extras | Was passiert |
+|---|---|---|---|
+| Broadcast | `app.phueber.seniornav.action.BAR_HIDE` | keine | Pausiert die Leiste: ausgeblendet bis `BAR_SHOW`, auch nach einem Neustart |
+| Broadcast | `app.phueber.seniornav.action.BAR_SHOW` | keine | Zeigt die pausierte Leiste wieder |
+| Broadcast | `app.phueber.seniornav.action.BAR_SIDES` | `back` = `left` oder `right` | Legt Zurück auf diese Seite, Start auf die andere |
+| Broadcast | `app.phueber.seniornav.action.BACK` | keine | Drückt Zurück (nur, wenn der Dienst der Leiste an ist) |
+| Broadcast | `app.phueber.seniornav.action.HOME` | keine | Drückt Start (nur, wenn der Dienst der Leiste an ist) |
+
+Solange die Leiste pausiert ist, sagt der Bildschirm der App **„durch
+Automatisierung pausiert“** und hat eine Taste **Leiste wieder zeigen**, auch
+wenn SeniorLauncher gesperrt ist. Auf dem Sperrbildschirm ist die Leiste ohnehin
+ausgeblendet. Andere Werte werden ignoriert.
+
+**Beispiel (Trigly):** Auslöser *App geöffnet: YouTube*, Aktion *Intent senden*,
+Sendeart *Broadcast*, Aktion `app.phueber.seniornav.action.BAR_HIDE`, Paket
+`app.phueber.seniornav`. Eine zweite Regel mit *App geschlossen: YouTube* sendet
+`app.phueber.seniornav.action.BAR_SHOW`.
 
 ## Datenschutz
 

@@ -19,8 +19,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
- * The bar itself: its view (Back on the left, Home on the right, each half the
- * width, icon and word) and its window, an accessibility overlay pinned to the
+ * The bar itself: its view (Back on the left, Home on the right, or the other
+ * way round if the helper chose so; each half the width, icon and word) and its window, an accessibility overlay pinned to the
  * bottom edge, exactly over the system navigation bar.
  *
  * TYPE_ACCESSIBILITY_OVERLAY is layered above the navigation bar, so the bar
@@ -92,21 +92,26 @@ final class Bar {
         return BarHeight.choose(inset, resource, floor);
     }
 
-    static View view(Context c, int heightPx, Actions actions) {
+    /** {@code backRight}: Home on the left and Back on the right instead of the default. */
+    static View view(Context c, int heightPx, boolean backRight, Actions actions) {
         LinearLayout bar = new LinearLayout(c);
         bar.setOrientation(LinearLayout.HORIZONTAL);
+        // "left" and "right" mean the screen's sides, also in right-to-left languages.
+        bar.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         bar.setBackgroundColor(Ui.color(Palette.Role.BAR));
 
         View back = half(c, heightPx, R.drawable.ic_arrow_back, R.string.bar_back, actions::back);
         View home = half(c, heightPx, R.drawable.ic_home, R.string.bar_home, actions::home);
-        bar.addView(back, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
+        View first = backRight ? home : back;
+        View second = backRight ? back : home;
+        bar.addView(first, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
         View divider = new View(c);
         divider.setBackgroundColor(Ui.color(Palette.Role.BAR_DIVIDER));
         LinearLayout.LayoutParams dlp = new LinearLayout.LayoutParams(
                 Math.max(1, Ui.dp(c, 2)), ViewGroup.LayoutParams.MATCH_PARENT);
         dlp.topMargin = dlp.bottomMargin = heightPx / 6;
         bar.addView(divider, dlp);
-        bar.addView(home, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
+        bar.addView(second, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
         return bar;
     }
 

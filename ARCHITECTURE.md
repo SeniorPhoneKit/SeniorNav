@@ -27,7 +27,8 @@ for the helper: it says whether the bar is on and how to switch it on.
   the hidden secure setting `navigation_mode`, else the framework's
   `config_navBarInteractionMode`; best effort) and asks the helper to switch.
 - **Out of the way only on the lock screen** (`KeyguardManager`), whose own
-  buttons and PIN pad must work. It stays over the keyboard: in 3-button mode
+  buttons and PIN pad must work, and while an automation app has paused it
+  (see Automation). It stays over the keyboard: in 3-button mode
   the keyboard sits above the system bar, so the bar covers only that bar, and
   Back closes the keyboard like the system button does.
 - **Hidden, not removed.** The window is attached once per connection and
@@ -46,8 +47,11 @@ for the helper: it says whether the bar is on and how to switch it on.
 | Class | Role |
 |---|---|
 | `NavBarService` | The accessibility service. Attaches the bar's window, hides and shows it, presses Back/Home. Listens to window events, screen on/off/unlock broadcasts, and the navigation bar's visibility. |
-| `Bar` | The bar's view (Back left, Home right, each half the width, icon plus word, white on near-black) and its window parameters; reads the system navigation bar height. |
-| `MainActivity` | The helper's screen: status in words and colour, the button to Accessibility settings, the "Allow restricted settings" hint (Android 13+), the navigation mode and the advice to use 3-button navigation. Back at the bottom goes home in one tap. |
+| `Bar` | The bar's view (Back left, Home right, or swapped by the helper's choice; always the screen's left/right, also in RTL; each half the width, icon plus word, white on near-black) and its window parameters; reads the system navigation bar height. |
+| `MainActivity` | The helper's screen: status in words and colour, "paused by automation" with Show the bar again, the button order (hidden while locked), the button to Accessibility settings, the "Allow restricted settings" hint (Android 13+), the navigation mode and the advice to use 3-button navigation. Back at the bottom goes home in one tap. |
+| `NavStore` | The two settings, `paused` and `back_right`, in one SharedPreferences file that the service, the screen and the receiver share. |
+| `AutomationReceiver` | Exported; BAR_HIDE/BAR_SHOW/BAR_SIDES write `NavStore`, BACK/HOME go to `NavBarService.perform`. |
+| `Automation` | Pure: action names, which command an action is, the `back` extra (`left`/`right`). Unit tested. |
 | `NavSettings` | Reads the enabled-services setting and the navigation mode; opens Accessibility settings, App info and System navigation (no public action exists, so known AOSP screens are tried, then general Settings). |
 | `LauncherLock` | Reads SeniorLauncher's shared lock (`content://app.phueber.seniorlauncher.lock/state`, `locked` 0/1). Locked, the main screen hides its settings buttons. Read-only; unlocking happens on the home screen. |
 | `Ui` | Shared buttons and the screen frame, as in the other Senior apps. |
@@ -57,6 +61,32 @@ for the helper: it says whether the bar is on and how to switch it on.
 | `BarStatus` | Pure: on / off / turned on but not running, and parsing of the enabled-services setting. Unit tested. |
 
 Pure classes have JVM tests in `app/src/test`; Android-facing classes have none.
+
+## Automation
+
+Automation apps (Trigly, Tasker, ...) send explicit broadcasts to the exported
+`AutomationReceiver`: `BAR_HIDE`, `BAR_SHOW`, `BAR_SIDES` (extra `back` =
+`left`/`right`), `BACK`, `HOME`, all under `app.phueber.seniornav.action.`.
+
+- **Broadcasts**, because they need nothing from the sender (no foreground, no
+  overlay permission) and no screen has to appear. Extras are strings, because
+  that is all Trigly can send; anything malformed is logged and ignored.
+- **Settings through `NavStore`, one signal.** The receiver only writes
+  SharedPreferences. The service registers an `OnSharedPreferenceChangeListener`
+  while connected: `paused` triggers `refresh()` (hidden = lock screen OR
+  paused), `back_right` rebuilds the window. The main screen listens the same
+  way while resumed. All three run in one process, so they share one
+  SharedPreferences instance and `apply()` notifies at once. Being on disk,
+  `paused` survives a service or phone restart; it ends only with BAR_SHOW or
+  the screen's button, which is shown even while SeniorLauncher is locked
+  (showing the bar only restores the normal state).
+- **Back and Home** need the connected service: `NavBarService.perform` uses a
+  static reference set on connect and cleared in `stop()`, and drops the
+  command (log line) when the service is not running.
+- **No permission guard.** Nothing here gives the sender more than it already
+  has: any app can start the home screen, and hiding the bar only takes away
+  this app's own overlay. A malicious app could pause the bar; the main screen
+  says so in words and undoes it in one tap.
 
 ## Status on the main screen
 
