@@ -26,17 +26,18 @@ for the helper: it says whether the bar is on and how to switch it on.
   underneath it to the system. The main screen reads the mode (`NavMode`, from
   the hidden secure setting `navigation_mode`, else the framework's
   `config_navBarInteractionMode`; best effort) and asks the helper to switch.
-- **Out of the way when it must be** (`BarRules`): hidden over the lock screen
-  (`KeyguardManager`), while a keyboard is up (an `AccessibilityWindowInfo` of
-  `TYPE_INPUT_METHOD` in `getWindows()`).
+- **Out of the way only on the lock screen** (`KeyguardManager`), whose own
+  buttons and PIN pad must work. It stays over the keyboard: in 3-button mode
+  the keyboard sits above the system bar, so the bar covers only that bar, and
+  Back closes the keyboard like the system button does.
 - **Hidden, not removed.** The window is attached once per connection and
   configuration. Hiding makes the bar invisible and the window
   `FLAG_NOT_TOUCHABLE`, so every touch goes to what is below.
 - **Minimal events.** The service config asks for `typeWindowsChanged` and
-  `typeWindowStateChanged` only, with `flagRetrieveInteractiveWindows`.
-  `canRetrieveWindowContent` is on because `getWindows()` requires it; window
-  content (nodes, text) is never read. Bursts of events are folded into one
-  check 150 ms after the last.
+  `typeWindowStateChanged` only, as a cue to re-check the lock screen, and
+  `canRetrieveWindowContent` is off: the service cannot read window content or
+  the window list. Bursts of events are folded into one check 150 ms after the
+  last.
 - **Reconfiguration.** On rotation, Display size, font or language change the
   window is rebuilt with the new height and labels, again at the bottom.
 
@@ -51,7 +52,6 @@ for the helper: it says whether the bar is on and how to switch it on.
 | `LauncherLock` | Reads SeniorLauncher's shared lock (`content://app.phueber.seniorlauncher.lock/state`, `locked` 0/1). Locked, the main screen hides its settings buttons. Read-only; unlocking happens on the home screen. |
 | `Ui` | Shared buttons and the screen frame, as in the other Senior apps. |
 | `Palette` | Pure: the colours by role (the family's Light look plus the bar) and the WCAG contrast check. Unit tested. |
-| `BarRules` | Pure: when the bar shows (lock screen, keyboard, navigation bar hidden). Unit tested. |
 | `BarHeight` | Pure: which height source wins, and the 48dp floor. Unit tested. |
 | `NavMode` | Pure: the raw navigation-mode value to 3-button / 2-button / gesture / unknown. Unit tested. |
 | `BarStatus` | Pure: on / off / turned on but not running, and parsing of the enabled-services setting. Unit tested. |
@@ -82,10 +82,9 @@ SeniorLauncher's lock provider visible.
 - **Landscape.** The bar stays at the bottom edge in landscape, while on phones
   the system navigation bar moves to the side. Simplest and predictable; the
   system buttons on the side remain usable.
-- **Keyboard.** The bar is hidden while any input-method window is listed, and
-  shows again when it closes. The system bar's own "close keyboard" button is
-  usable meanwhile. A keyboard that does not report itself as an input-method
-  window (rare) would be covered at its bottom row.
+- **Keyboard.** The bar stays. The system bar's "close keyboard" and keyboard
+  switcher buttons are covered; Back closes the keyboard instead, and switching
+  keyboards is a helper task in Settings.
 - **Full-screen video and games: the bar stays** and covers the bottom of the
   picture. Android has no direct API for "the app in front hid the navigation
   bar". The bar window's own insets do not work: on the Android 15 emulator an

@@ -14,18 +14,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
-import android.view.accessibility.AccessibilityWindowInfo;
 import android.widget.FrameLayout;
-
-import java.util.List;
 
 /**
  * The accessibility service that shows the bar. It is the only way for an app
  * to press Back for another app (performGlobalAction) and to draw above the
  * system navigation bar (TYPE_ACCESSIBILITY_OVERLAY).
  *
- * It listens only to window changes (no content, no text, no key events). The
- * window list tells whether a keyboard is up; window content is never read.
+ * It listens only to window changes (no content, no text, no key events) and
+ * cannot read window content. Its only rule: the bar is hidden over the lock
+ * screen, whose own buttons and PIN pad must work. It stays over the keyboard,
+ * where it covers only the system bar below the keys (Back then closes the
+ * keyboard, as the system button does).
  *
  * The bar's window is attached once and stays attached while the service
  * runs; hiding makes it invisible and untouchable instead of removing it.
@@ -50,7 +50,6 @@ public final class NavBarService extends AccessibilityService {
     private int barHeight;
     private boolean attached;
     private boolean visible;
-    /** What the window was last told about the system navigation bar; null: nothing yet. */
 
     private final BroadcastReceiver screen = new BroadcastReceiver() {
         @Override public void onReceive(Context c, Intent i) {
@@ -172,21 +171,7 @@ public final class NavBarService extends AccessibilityService {
         if (!running || !attached) return;
         KeyguardManager km = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
         boolean locked = km != null && km.isKeyguardLocked();
-        setVisible(BarRules.show(locked, inputMethodShown()));
-    }
-
-    /** A keyboard (input method) window is on screen. */
-    private boolean inputMethodShown() {
-        try {
-            List<AccessibilityWindowInfo> windows = getWindows();
-            if (windows == null) return false;
-            for (AccessibilityWindowInfo w : windows) {
-                if (w.getType() == AccessibilityWindowInfo.TYPE_INPUT_METHOD) return true;
-            }
-        } catch (RuntimeException ignored) {
-            // window list unavailable: assume no keyboard
-        }
-        return false;
+        setVisible(!locked);
     }
 
     private void setVisible(boolean show) {

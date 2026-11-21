@@ -6,7 +6,7 @@
     <string name="bar_back">Zurück</string>
     <string name="bar_home">Start</string>
 
-    <string name="service_description">Zeigt unten auf dem Bildschirm eine große, feste Leiste mit den Tasten Zurück und Start, über den eigenen Navigationstasten des Telefons. Sie ist eine Navigationshilfe für ältere Menschen und Menschen mit kognitiven oder motorischen Einschränkungen, denen die kleinen Systemtasten oder Wischgesten schwerfallen. Sie beobachtet nur, welche Fenster offen sind (um der Tastatur und dem Sperrbildschirm Platz zu machen); sie liest nie, was auf dem Bildschirm steht, und sendet nichts irgendwohin.</string>
+    <string name="service_description">Zeigt unten auf dem Bildschirm eine große, feste Leiste mit den Tasten Zurück und Start, über den eigenen Navigationstasten des Telefons. Sie ist eine Navigationshilfe für ältere Menschen und Menschen mit kognitiven oder motorischen Einschränkungen, denen die kleinen Systemtasten oder Wischgesten schwerfallen. Sie bemerkt nur, wann Fenster wechseln (um dem Sperrbildschirm Platz zu machen); sie kann nicht lesen, was auf dem Bildschirm steht, und sendet nichts irgendwohin.</string>
 
     <string name="status_on">✓ Die Leiste ist an.</string>
     <string name="status_off">✗ Die Leiste ist aus.</string>

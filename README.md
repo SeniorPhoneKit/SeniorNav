@@ -18,7 +18,7 @@ At the bottom of the screen, a dark bar:
 - **← Back** on the left: one step back, like the phone's own Back button.
 - **⌂ Home** on the right: straight to the home screen.
 
-The bar steps aside while the keyboard is open and on the lock screen.
+The bar steps aside on the lock screen. With the keyboard open, Back closes it.
 
 ## Install
 
@@ -65,8 +65,7 @@ buttons; unlock on the home screen to change them.
 
 The app has no internet access at all (it does not even ask for it), no
 account, no tracking and no ads. It uses Android's accessibility service only
-to press Back and Home and to see whether the keyboard or the lock screen is
-showing. It never reads what is on the screen.
+to press Back and Home and to notice when the lock screen shows. It never reads what is on the screen.
 
 ## Contributing and licence
 
@@ -94,8 +93,8 @@ Unten auf dem Bildschirm eine dunkle Leiste:
 - **← Zurück** links: einen Schritt zurück, wie die eigene Zurück-Taste.
 - **⌂ Start** rechts: direkt zum Startbildschirm.
 
-Die Leiste macht Platz, solange die Tastatur offen ist, und auf dem
-Sperrbildschirm.
+Auf dem Sperrbildschirm macht die Leiste Platz. Bei offener Tastatur schließt
+Zurück die Tastatur.
 
 ## Installieren
 
@@ -142,5 +141,5 @@ Einstellungstasten aus; zum Ändern auf dem Startbildschirm entsperren.
 
 Die App hat keinerlei Internetzugang (sie fragt nicht einmal danach), kein
 Konto, kein Tracking und keine Werbung. Sie nutzt den Bedienungshilfe-Dienst von
-Android nur, um Zurück und Start zu drücken und um zu sehen, ob die Tastatur oder
-der Sperrbildschirm gezeigt wird. Sie liest nie, was auf dem Bildschirm steht.
+Android nur, um Zurück und Start zu drücken und um zu bemerken, wann der
+Sperrbildschirm gezeigt wird. Sie liest nie, was auf dem Bildschirm steht.

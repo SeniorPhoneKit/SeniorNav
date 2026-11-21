@@ -8,7 +8,7 @@
     <string name="bar_home">Home</string>
 
     <!-- Shown in Accessibility settings, and to Google Play reviewers. -->
-    <string name="service_description">Shows a big, fixed bar with Back and Home buttons at the bottom of the screen, over the phone\'s own navigation buttons. It is a navigation aid for older people and people with cognitive or motor impairments who find the small system buttons or swipe gestures hard to use. It only watches which windows are open (to step aside for the keyboard and the lock screen); it never reads what is on the screen, and sends nothing anywhere.</string>
+    <string name="service_description">Shows a big, fixed bar with Back and Home buttons at the bottom of the screen, over the phone\'s own navigation buttons. It is a navigation aid for older people and people with cognitive or motor impairments who find the small system buttons or swipe gestures hard to use. It only notices when windows change (to step aside for the lock screen); it cannot read what is on the screen, and sends nothing anywhere.</string>
 
     <string name="status_on">✓ The bar is on.</string>
     <string name="status_off">✗ The bar is off.</string>
