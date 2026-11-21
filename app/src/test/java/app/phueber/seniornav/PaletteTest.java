@@ -43,5 +43,7 @@ public class PaletteTest {
     @Test public void theBarIsHighContrast() {
         atLeast(7, c(Role.ON_BAR, Role.BAR), "bar");
         atLeast(3, c(Role.BAR_DIVIDER, Role.BAR), "bar divider");
+        atLeast(7, c(Role.ON_BAR_LIGHT, Role.BAR_LIGHT), "light bar");
+        atLeast(3, c(Role.BAR_DIVIDER_LIGHT, Role.BAR_LIGHT), "light bar divider");
     }
 }

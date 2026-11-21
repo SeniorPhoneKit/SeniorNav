@@ -13,11 +13,13 @@ import android.content.SharedPreferences;
  *   (BAR_HIDE), until BAR_SHOW or the button on the main screen. Kept on disk,
  *   so it survives a restart of the service or the phone.
  * - back_right: the button order. Default Back on the left, Home on the right.
+ * - light_bar: white bar with dark icons. Default dark bar with white icons.
  */
 final class NavStore {
     static final String PREFS = "nav";
     static final String KEY_PAUSED = "paused";
     static final String KEY_BACK_RIGHT = "back_right";
+    static final String KEY_LIGHT_BAR = "light_bar";
 
     private NavStore() {}
 
@@ -39,5 +41,13 @@ final class NavStore {
 
     static void setBackRight(Context c, boolean right) {
         prefs(c).edit().putBoolean(KEY_BACK_RIGHT, right).apply();
+    }
+
+    static boolean lightBar(Context c) {
+        return prefs(c).getBoolean(KEY_LIGHT_BAR, false);
+    }
+
+    static void setLightBar(Context c, boolean light) {
+        prefs(c).edit().putBoolean(KEY_LIGHT_BAR, light).apply();
     }
 }

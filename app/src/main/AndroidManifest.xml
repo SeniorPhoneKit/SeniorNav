@@ -40,6 +40,7 @@
                 <action android:name="app.phueber.seniornav.action.BAR_HIDE" />
                 <action android:name="app.phueber.seniornav.action.BAR_SHOW" />
                 <action android:name="app.phueber.seniornav.action.BAR_SIDES" />
+                <action android:name="app.phueber.seniornav.action.BAR_COLOUR" />
                 <action android:name="app.phueber.seniornav.action.BACK" />
                 <action android:name="app.phueber.seniornav.action.HOME" />
             </intent-filter>

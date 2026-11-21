@@ -23,7 +23,10 @@ final class Palette {
         PRESS_ON_COLOR, // ripple over GREEN/BLUE/RED and the bar
         BAR,            // the navigation bar's background
         ON_BAR,         // icons and words on the bar
-        BAR_DIVIDER     // the line between Back and Home
+        BAR_DIVIDER,    // the line between Back and Home
+        BAR_LIGHT,      // the light bar's background (setting "Light bar")
+        ON_BAR_LIGHT,   // icons and words on the light bar
+        BAR_DIVIDER_LIGHT // the line on the light bar
     }
 
     /** Text on GREEN, BLUE and RED buttons. */
@@ -35,6 +38,8 @@ final class Palette {
             0x33000000, 0x55FFFFFF,
             // The bar is near-black with white, like most system navigation bars.
             0xFF1C1B19, 0xFFFFFFFF, 0xFF8A857C,
+            // The light bar: white with near-black, like light system bars.
+            0xFFFFFFFF, 0xFF1C1B19, 0xFF8A857C,
     };
 
     private Palette() {}

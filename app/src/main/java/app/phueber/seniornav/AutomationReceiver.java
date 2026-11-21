@@ -37,6 +37,14 @@ public final class AutomationReceiver extends BroadcastReceiver {
                     NavStore.setBackRight(ctx, right);
                 }
                 break;
+            case BAR_COLOUR:
+                Boolean light = Automation.lightBar(intent.getStringExtra(Automation.EXTRA_COLOUR));
+                if (light == null) {
+                    Log.w(TAG, "BAR_COLOUR needs extra colour=dark or colour=light");
+                } else {
+                    NavStore.setLightBar(ctx, light);
+                }
+                break;
             case BACK:
                 press(AccessibilityService.GLOBAL_ACTION_BACK);
                 break;

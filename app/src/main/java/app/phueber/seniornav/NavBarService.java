@@ -67,8 +67,8 @@ public final class NavBarService extends AccessibilityService {
     /** Settings changed (by the screen or by automation): show them at once. */
     private final SharedPreferences.OnSharedPreferenceChangeListener settings = (p, key) -> {
         if (!running) return;
-        if (key == null || NavStore.KEY_BACK_RIGHT.equals(key)) {
-            detach(); // a new bar with the buttons in the new order
+        if (key == null || NavStore.KEY_BACK_RIGHT.equals(key) || NavStore.KEY_LIGHT_BAR.equals(key)) {
+            detach(); // a new bar with the new order or colours
             attach();
         }
         refresh();
@@ -156,7 +156,7 @@ public final class NavBarService extends AccessibilityService {
     private void attach() {
         if (attached || wm == null) return;
         barHeight = Bar.height(this, wm);
-        bar = Bar.view(this, barHeight, NavStore.backRight(this), new Bar.Actions() {
+        bar = Bar.view(this, barHeight, NavStore.backRight(this), NavStore.lightBar(this), new Bar.Actions() {
             @Override public void back() {
                 performGlobalAction(GLOBAL_ACTION_BACK);
             }

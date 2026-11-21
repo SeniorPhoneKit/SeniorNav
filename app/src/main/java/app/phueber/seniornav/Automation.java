@@ -15,13 +15,16 @@ final class Automation {
     static final String BAR_HIDE = PREFIX + "BAR_HIDE";
     static final String BAR_SHOW = PREFIX + "BAR_SHOW";
     static final String BAR_SIDES = PREFIX + "BAR_SIDES";
+    static final String BAR_COLOUR = PREFIX + "BAR_COLOUR";
     static final String BACK = PREFIX + "BACK";
     static final String HOME = PREFIX + "HOME";
 
     /** BAR_SIDES: which side Back goes to, "left" or "right". */
     static final String EXTRA_BACK = "back";
+    /** BAR_COLOUR: "dark" or "light". */
+    static final String EXTRA_COLOUR = "colour";
 
-    enum Command { BAR_HIDE, BAR_SHOW, BAR_SIDES, BACK, HOME }
+    enum Command { BAR_HIDE, BAR_SHOW, BAR_SIDES, BAR_COLOUR, BACK, HOME }
 
     /** The command an action stands for, or null if it is none of ours. */
     static Command parse(String action) {
@@ -41,6 +44,18 @@ final class Automation {
         String v = value.trim().toLowerCase(Locale.ROOT);
         if (v.equals("right")) return Boolean.TRUE;
         if (v.equals("left")) return Boolean.FALSE;
+        return null;
+    }
+
+    /**
+     * The extra "colour": true for a light bar ("light", German "hell"), false
+     * for a dark one ("dark", "dunkel"), null for anything else.
+     */
+    static Boolean lightBar(String value) {
+        if (value == null) return null;
+        String v = value.trim().toLowerCase(Locale.ROOT);
+        if (v.equals("light") || v.equals("hell")) return Boolean.TRUE;
+        if (v.equals("dark") || v.equals("dunkel")) return Boolean.FALSE;
         return null;
     }
 }

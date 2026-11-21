@@ -47,6 +47,7 @@ Needs Android 8.0 or newer.
    Display > **Display size**.
 6. Under **Button order**, choose **Back on the left** (the default) or **Back
    on the right**. The bar changes at once.
+7. Under **Bar colour**, choose **Dark bar** (the default) or **Light bar**.
 
 If the app later says **"turned on but not running"**, Android has stopped it:
 switch it off and on again in accessibility settings. Some phone makers stop
@@ -74,6 +75,7 @@ the package `app.phueber.seniornav`; extras are text.
 | Broadcast | `app.phueber.seniornav.action.BAR_HIDE` | none | Pauses the bar: hidden until `BAR_SHOW`, also after a restart |
 | Broadcast | `app.phueber.seniornav.action.BAR_SHOW` | none | Shows the paused bar again |
 | Broadcast | `app.phueber.seniornav.action.BAR_SIDES` | `back` = `left` or `right` | Puts Back on that side, Home on the other |
+| Broadcast | `app.phueber.seniornav.action.BAR_COLOUR` | `colour` = `dark` or `light` | Dark bar with white icons, or white bar with dark icons |
 | Broadcast | `app.phueber.seniornav.action.BACK` | none | Presses Back (only while the bar's service is on) |
 | Broadcast | `app.phueber.seniornav.action.HOME` | none | Presses Home (only while the bar's service is on) |
 
@@ -149,6 +151,8 @@ Benötigt Android 8.0 oder neuer.
    **Anzeigegröße** erhöhen.
 6. Unter **Reihenfolge der Tasten** **Zurück links** (Standard) oder **Zurück
    rechts** wählen. Die Leiste ändert sich sofort.
+7. Unter **Farbe der Leiste** **Dunkle Leiste** (Standard) oder **Helle Leiste**
+   wählen.
 
 Zeigt die App später **„eingeschaltet, läuft aber nicht“**, hat Android sie
 angehalten: in den Bedienungshilfen aus- und wieder einschalten. Manche
@@ -177,6 +181,7 @@ Text.
 | Broadcast | `app.phueber.seniornav.action.BAR_HIDE` | keine | Pausiert die Leiste: ausgeblendet bis `BAR_SHOW`, auch nach einem Neustart |
 | Broadcast | `app.phueber.seniornav.action.BAR_SHOW` | keine | Zeigt die pausierte Leiste wieder |
 | Broadcast | `app.phueber.seniornav.action.BAR_SIDES` | `back` = `left` oder `right` | Legt Zurück auf diese Seite, Start auf die andere |
+| Broadcast | `app.phueber.seniornav.action.BAR_COLOUR` | `colour` = `dark` oder `light` (auch `dunkel`/`hell`) | Dunkle Leiste mit weißen Symbolen oder helle mit dunklen |
 | Broadcast | `app.phueber.seniornav.action.BACK` | keine | Drückt Zurück (nur, wenn der Dienst der Leiste an ist) |
 | Broadcast | `app.phueber.seniornav.action.HOME` | keine | Drückt Start (nur, wenn der Dienst der Leiste an ist) |
 

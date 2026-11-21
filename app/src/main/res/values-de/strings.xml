@@ -30,6 +30,9 @@
     <string name="sides_now_right">Jetzt: Start links, Zurück rechts.</string>
     <string name="sides_back_left">Zurück links</string>
     <string name="sides_back_right">Zurück rechts</string>
+    <string name="colour_heading">Farbe der Leiste</string>
+    <string name="colour_dark">Dunkle Leiste</string>
+    <string name="colour_light">Helle Leiste</string>
     <string name="sides_chosen">✓ %1$s (gewählt)</string>
 
     <string name="nav_heading">Navigationstasten</string>

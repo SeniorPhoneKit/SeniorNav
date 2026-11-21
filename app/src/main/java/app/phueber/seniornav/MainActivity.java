@@ -73,7 +73,10 @@ public final class MainActivity extends Activity {
             }
         }
 
-        if (!locked) addSidesSection();
+        if (!locked) {
+            addSidesSection();
+            addColourSection();
+        }
         addNavigationSection(NavSettings.navMode(this), locked);
     }
 
@@ -104,6 +107,25 @@ public final class MainActivity extends Activity {
                 Ui.TEXT_BODY), Ui.fullWidth(this, 8));
         content.addView(sideButton(false, !right), Ui.fullWidth(this, 12));
         content.addView(sideButton(true, right), Ui.fullWidth(this, 12));
+    }
+
+    /** Dark or light bar: two big buttons, the chosen one says so in words. */
+    private void addColourSection() {
+        TextView heading = Ui.bold(this, getString(R.string.colour_heading), 24);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) heading.setAccessibilityHeading(true);
+        content.addView(heading, Ui.fullWidth(this, 32));
+        boolean light = NavStore.lightBar(this);
+        content.addView(colourButton(false, !light), Ui.fullWidth(this, 12));
+        content.addView(colourButton(true, light), Ui.fullWidth(this, 12));
+    }
+
+    private Button colourButton(boolean light, boolean chosen) {
+        String label = getString(light ? R.string.colour_light : R.string.colour_dark);
+        Button b = chosen
+                ? Ui.button(this, getString(R.string.sides_chosen, label), Palette.Role.BLUE)
+                : Ui.outlined(this, label);
+        b.setOnClickListener(v -> NavStore.setLightBar(this, light));
+        return b;
     }
 
     private Button sideButton(boolean backRight, boolean chosen) {

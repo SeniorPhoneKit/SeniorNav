@@ -92,21 +92,37 @@ final class Bar {
         return BarHeight.choose(inset, resource, floor);
     }
 
-    /** {@code backRight}: Home on the left and Back on the right instead of the default. */
-    static View view(Context c, int heightPx, boolean backRight, Actions actions) {
+    /**
+     * {@code backRight}: Home on the left and Back on the right instead of the default.
+     * {@code light}: white bar with dark icons instead of the default dark bar.
+     */
+    static View view(Context c, int heightPx, boolean backRight, boolean light, Actions actions) {
+        int bg = Ui.color(light ? Palette.Role.BAR_LIGHT : Palette.Role.BAR);
+        int fg = Ui.color(light ? Palette.Role.ON_BAR_LIGHT : Palette.Role.ON_BAR);
+        Palette.Role press = light ? Palette.Role.PRESS_ON_CARD : Palette.Role.PRESS_ON_COLOR;
         LinearLayout bar = new LinearLayout(c);
         bar.setOrientation(LinearLayout.HORIZONTAL);
         // "left" and "right" mean the screen's sides, also in right-to-left languages.
         bar.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-        bar.setBackgroundColor(Ui.color(Palette.Role.BAR));
+        if (light) {
+            // A light bar would melt into white app screens: a line on top marks its edge.
+            android.graphics.drawable.ColorDrawable line = new android.graphics.drawable.ColorDrawable(
+                    Ui.color(Palette.Role.BAR_DIVIDER_LIGHT));
+            android.graphics.drawable.InsetDrawable fill = new android.graphics.drawable.InsetDrawable(
+                    new android.graphics.drawable.ColorDrawable(bg), 0, Math.max(1, Ui.dp(c, 2)), 0, 0);
+            bar.setBackground(new android.graphics.drawable.LayerDrawable(
+                    new android.graphics.drawable.Drawable[] {line, fill}));
+        } else {
+            bar.setBackgroundColor(bg);
+        }
 
-        View back = half(c, heightPx, R.drawable.ic_arrow_back, R.string.bar_back, actions::back);
-        View home = half(c, heightPx, R.drawable.ic_home, R.string.bar_home, actions::home);
+        View back = half(c, heightPx, fg, bg, press, R.drawable.ic_arrow_back, R.string.bar_back, actions::back);
+        View home = half(c, heightPx, fg, bg, press, R.drawable.ic_home, R.string.bar_home, actions::home);
         View first = backRight ? home : back;
         View second = backRight ? back : home;
         bar.addView(first, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
         View divider = new View(c);
-        divider.setBackgroundColor(Ui.color(Palette.Role.BAR_DIVIDER));
+        divider.setBackgroundColor(Ui.color(light ? Palette.Role.BAR_DIVIDER_LIGHT : Palette.Role.BAR_DIVIDER));
         LinearLayout.LayoutParams dlp = new LinearLayout.LayoutParams(
                 Math.max(1, Ui.dp(c, 2)), ViewGroup.LayoutParams.MATCH_PARENT);
         dlp.topMargin = dlp.bottomMargin = heightPx / 6;
@@ -120,11 +136,11 @@ final class Bar {
      * than the font scale, so they always fit the bar. Display size makes the
      * bar and everything on it bigger together.
      */
-    private static View half(Context c, int heightPx, int icon, int label, Runnable action) {
-        int fg = Ui.color(Palette.Role.ON_BAR);
+    private static View half(Context c, int heightPx, int fg, int bg, Palette.Role press,
+            int icon, int label, Runnable action) {
         LinearLayout b = new LinearLayout(c);
         b.setGravity(Gravity.CENTER);
-        b.setBackground(Ui.ripple(c, Palette.Role.PRESS_ON_COLOR, Ui.color(Palette.Role.BAR), 0, 0));
+        b.setBackground(Ui.ripple(c, press, bg, 0, 0));
         b.setClickable(true);
         b.setFocusable(true);
         b.setContentDescription(c.getString(label));

@@ -39,6 +39,17 @@ public class AutomationTest {
         assertEquals(Boolean.FALSE, Automation.backOnRight("Left"));
     }
 
+    @Test public void readsTheColour() {
+        assertEquals(Boolean.TRUE, Automation.lightBar("light"));
+        assertEquals(Boolean.FALSE, Automation.lightBar(" Dark "));
+        assertEquals(Boolean.TRUE, Automation.lightBar("hell"));
+        assertEquals(Boolean.FALSE, Automation.lightBar("dunkel"));
+        assertNull(Automation.lightBar(null));
+        assertNull(Automation.lightBar("grey"));
+        assertEquals(Automation.Command.BAR_COLOUR,
+                Automation.parse("app.phueber.seniornav.action.BAR_COLOUR"));
+    }
+
     @Test public void ignoresAMalformedSide() {
         assertNull(Automation.backOnRight(null));
         assertNull(Automation.backOnRight(""));
