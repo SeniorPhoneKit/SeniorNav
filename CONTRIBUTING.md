@@ -62,10 +62,20 @@ tests are unaffected.
 2. `./gradlew test lint assembleRelease`
 3. Check that the output is `app/build/outputs/apk/release/SeniorNav-<version>-release.apk`.
    An `-unsigned` name means signing was not configured.
-4. Verify the signature with `apksigner verify --print-certs <apk>`, and record
-   the release certificate's SHA-256 here after the first release.
+4. Verify the signature with `apksigner verify --print-certs <apk>` against the
+   release certificate below. A different certificate means the wrong key: do
+   not publish.
 5. Tag `v<version>` and attach the APK to a GitHub release, renamed to
    `SeniorNav-<version>.apk`. The release notes are for the people using the
    app: what changed for them, in plain words, in English and German. Technical
    detail (signing, checksums, internals) stays in this file and in
    ARCHITECTURE.md; the same goes for the README.
+
+### Release certificate
+
+Every release is signed with this key (`CN=SeniorNav, C=DE`); `apksigner` must
+print exactly:
+
+    Signer #1 certificate SHA-256 digest: 255e8429f716fd5c8c4d1ffe6731e4d4b13b1a211799fc232e6908f188b2ceb1
+
+To check a downloaded APK: `apksigner verify --print-certs SeniorNav-<version>.apk`.
