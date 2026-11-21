@@ -142,6 +142,7 @@ final class Ui {
         alp.setMarginEnd(dp(a, 10));
         b.addView(arrow, alp);
         b.addView(label);
+        NavBar.hideWhileOn(b); // SeniorNav's bar already has Back and Home
         return b;
     }
 
