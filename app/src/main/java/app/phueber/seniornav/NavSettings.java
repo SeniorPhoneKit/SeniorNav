@@ -62,13 +62,17 @@ final class NavSettings {
      * Android has no public action for System navigation. These are the screens
      * AOSP-based Settings apps (Pixel and others) use, tried in turn; if none
      * opens, the general settings page, from where the helper searches for
-     * "navigation".
+     * "navigation". Every try names the Settings app, since a non-public
+     * action may be claimed by any app.
      */
     static void openNavigation(Activity a) {
         Intent[] tries = {
                 new Intent().setComponent(new ComponentName("com.android.settings",
                         "com.android.settings.Settings$SystemNavigationGestureSettingsActivity")),
-                new Intent("android.settings.GESTURE_NAVIGATION_SETTINGS"),
+                // pinned to the system Settings app: unpinned, any app could
+                // claim this action and show a fake settings screen
+                new Intent("android.settings.GESTURE_NAVIGATION_SETTINGS")
+                        .setPackage("com.android.settings"),
                 new Intent(Settings.ACTION_SETTINGS),
         };
         for (Intent i : tries) {

@@ -31,7 +31,9 @@ final class NavStore {
         return prefs(c).getBoolean(KEY_PAUSED, false);
     }
 
+    /** No-op when unchanged, so repeated BAR_HIDE/BAR_SHOW do not wake the other apps' observers. */
     static void setPaused(Context c, boolean paused) {
+        if (paused(c) == paused) return;
         prefs(c).edit().putBoolean(KEY_PAUSED, paused).apply();
         BarProvider.notifyChanged(c); // the bar shows or hides: other apps' Back follows
     }
