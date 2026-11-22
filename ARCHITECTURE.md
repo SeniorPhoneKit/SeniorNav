@@ -27,8 +27,13 @@ for the helper: it says whether the bar is on and how to switch it on.
   the hidden secure setting `navigation_mode`, else the framework's
   `config_navBarInteractionMode`; best effort) and asks the helper to switch.
 - **Out of the way only on the lock screen** (`KeyguardManager`), whose own
-  buttons and PIN pad must work, and while an automation app has paused it
-  (see Automation). It stays over the keyboard: in 3-button mode
+  buttons and PIN pad must work, while the screen is off
+  (`PowerManager.isInteractive`, the always-on display) or a screensaver runs
+  (`ACTION_DREAMING_STARTED`/`STOPPED`, e.g. the charging clock; the screen
+  counts as on), and while an automation app has paused it (see Automation).
+  The keyguard check alone missed the last two: when they start the lock may
+  not be engaged yet, and no event re-checks until the screen wakes.
+  It stays over the keyboard: in 3-button mode
   the keyboard sits above the system bar, so the bar covers only that bar, and
   Back closes the keyboard like the system button does.
 - **Hidden, not removed.** The window is attached once per connection and
@@ -49,7 +54,7 @@ for the helper: it says whether the bar is on and how to switch it on.
 
 | Class | Role |
 |---|---|
-| `NavBarService` | The accessibility service. Attaches the bar's window, hides and shows it, presses Back/Home. Listens to window events and screen on/off/unlock broadcasts (to hide over the lock screen) and to the settings. |
+| `NavBarService` | The accessibility service. Attaches the bar's window, hides and shows it, presses Back/Home. Listens to window events and screen on/off/unlock and screensaver start/stop broadcasts (to hide over the lock screen, the screen-off display and a screensaver) and to the settings. |
 | `Bar` | The bar's view (Back left, Home right, or swapped by the helper's choice; always the screen's left/right, also in RTL; each half the width, icon plus word; dark bar with white, or light bar with near-black and a grey top line) and its window parameters; reads the system navigation bar height. |
 | `MainActivity` | The helper's screen: status in words and colour, "paused by automation" with Show the bar again, the button order and the bar colour (hidden while locked), the button to Accessibility settings, the "Allow restricted settings" hint (Android 13+), the navigation mode and the advice to use 3-button navigation. Back at the bottom goes home in one tap (hidden while the bar is on, see `NavBar`). |
 | `NavStore` | The settings, `paused`, `back_right` and `light_bar`, in one SharedPreferences file that the service, the screen and the receiver share. |
@@ -80,8 +85,8 @@ Automation apps (Trigly, Tasker, ...) send explicit broadcasts to the exported
   that is all Trigly can send; anything malformed is logged and ignored.
 - **Settings through `NavStore`, one signal.** The receiver only writes
   SharedPreferences. The service registers an `OnSharedPreferenceChangeListener`
-  while connected: `paused` triggers `refresh()` (hidden = lock screen OR
-  paused), `back_right` and `light_bar` rebuild the window. The main screen listens the same
+  while connected: `paused` triggers `refresh()` (hidden = screen off OR
+  screensaver OR lock screen OR paused), `back_right` and `light_bar` rebuild the window. The main screen listens the same
   way while resumed. All three run in one process, so they share one
   SharedPreferences instance and `apply()` notifies at once. Being on disk,
   `paused` survives a service or phone restart; it ends only with BAR_SHOW or

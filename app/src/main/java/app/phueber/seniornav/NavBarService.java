@@ -12,6 +12,7 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.PowerManager;
 import android.os.SystemClock;
 import android.view.View;
 import android.view.ViewGroup;
@@ -83,6 +84,8 @@ public final class NavBarService extends AccessibilityService {
     private int barHeight;
     private boolean attached;
     private boolean visible;
+    /** A screensaver (dream) is running, e.g. the charging clock. */
+    private boolean dreaming;
 
     /** Settings changed (by the screen or by automation): show them at once. */
     private final SharedPreferences.OnSharedPreferenceChangeListener settings = (p, key) -> {
@@ -96,6 +99,9 @@ public final class NavBarService extends AccessibilityService {
 
     private final BroadcastReceiver screen = new BroadcastReceiver() {
         @Override public void onReceive(Context c, Intent i) {
+            String a = i.getAction();
+            if (Intent.ACTION_DREAMING_STARTED.equals(a)) dreaming = true;
+            else if (Intent.ACTION_DREAMING_STOPPED.equals(a)) dreaming = false;
             scheduleRefresh();
         }
     };
@@ -108,6 +114,8 @@ public final class NavBarService extends AccessibilityService {
         f.addAction(Intent.ACTION_SCREEN_ON);
         f.addAction(Intent.ACTION_SCREEN_OFF);
         f.addAction(Intent.ACTION_USER_PRESENT);
+        f.addAction(Intent.ACTION_DREAMING_STARTED);
+        f.addAction(Intent.ACTION_DREAMING_STOPPED);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(screen, f, Context.RECEIVER_NOT_EXPORTED);
         } else {
@@ -235,7 +243,14 @@ public final class NavBarService extends AccessibilityService {
         if (!attached) return;
         KeyguardManager km = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
         boolean locked = km != null && km.isKeyguardLocked();
-        setVisible(!locked && !NavStore.paused(this));
+        // Screen off (the always-on display) and a screensaver (the charging
+        // clock, a dream: the screen counts as on) draw the overlay where a tap
+        // only wakes the phone. The keyguard check alone misses both: when they
+        // start the lock may not be engaged yet (lock delay), and no later
+        // event re-checks until the screen wakes.
+        PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+        boolean interactive = pm == null || pm.isInteractive();
+        setVisible(interactive && !dreaming && !locked && !NavStore.paused(this));
     }
 
     private void setVisible(boolean show) {
