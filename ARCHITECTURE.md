@@ -53,7 +53,8 @@ for the helper: it says whether the bar is on and how to switch it on.
 | `Bar` | The bar's view (Back left, Home right, or swapped by the helper's choice; always the screen's left/right, also in RTL; each half the width, icon plus word; dark bar with white, or light bar with near-black and a grey top line) and its window parameters; reads the system navigation bar height. |
 | `MainActivity` | The helper's screen: status in words and colour, "paused by automation" with Show the bar again, the button order and the bar colour (hidden while locked), the button to Accessibility settings, the "Allow restricted settings" hint (Android 13+), the navigation mode and the advice to use 3-button navigation. Back at the bottom goes home in one tap (hidden while the bar is on, see `NavBar`). |
 | `NavStore` | The settings, `paused`, `back_right` and `light_bar`, in one SharedPreferences file that the service, the screen and the receiver share. |
-| `AutomationReceiver` | Exported; BAR_HIDE/BAR_SHOW/BAR_SIDES/BAR_COLOUR write `NavStore`, BACK/HOME go to `NavBarService.perform`. |
+| `AutomationReceiver` | Exported; BAR_HIDE/BAR_SHOW/BAR_SIDES/BAR_COLOUR write `NavStore`, BACK/HOME go to `NavBarService.perform`. BACK/HOME and BAR_HIDE are rate-limited (`AutomationLimit`). |
+| `AutomationLimit` | Pure: at most one automation action a second, six a minute, then a two-minute cooldown. Unit tested. |
 | `Automation` | Pure: action names, which command an action is, the `back` extra (`left`/`right`), the `colour` extra (`dark`/`light`). Unit tested. |
 | `NavSettings` | Reads the enabled-services setting and the navigation mode; opens Accessibility settings, App info and System navigation (no public action exists, so known AOSP screens are tried, then general Settings). |
 | `LauncherLock` | Reads SeniorLauncher's shared lock (`content://app.phueber.seniorlauncher.lock/state`, `locked` 0/1). Locked, the main screen hides its settings buttons. Read-only; unlocking happens on the home screen. |
@@ -89,10 +90,28 @@ Automation apps (Trigly, Tasker, ...) send explicit broadcasts to the exported
 - **Back and Home** need the connected service: `NavBarService.perform` uses a
   static reference set on connect and cleared in `stop()`, and drops the
   command (log line) when the service is not running.
-- **No permission guard.** Nothing here gives the sender more than it already
-  has: any app can start the home screen, and hiding the bar only takes away
-  this app's own overlay. A malicious app could pause the bar; the main screen
-  says so in words and undoes it in one tap.
+- **No permission guard, by decision.** Trigly and Tasker must work without
+  setup, so any installed app can send every command. That lends it this
+  service's power: a plain app cannot press Back in another app, nor bring up
+  the home screen while it is in the background, but through `BACK`/`HOME` it
+  can. Unbounded, a hostile app could loop them and keep the senior and the
+  helper out of Settings, so it could not even be uninstalled. It could also
+  keep pausing the bar, or rebuild it over and over by switching sides or
+  colour back and forth.
+- **Limits.** `BACK` and `HOME` share one `AutomationLimit`: at most one per
+  second and six in any minute; the next one starts a two-minute cooldown in
+  which all are ignored. A flood therefore gets six presses, then the phone is
+  left alone long enough to reach Settings; a rule that fires when an app opens
+  or closes never comes near it. `BAR_HIDE` has its own budget with the same
+  numbers, counting only hides that hide (a hide while paused is a no-op), so
+  the helper's "Show the bar again" wins; the main screen says "paused by
+  automation" in words. `NavStore.setPaused` does nothing when the value is
+  unchanged, so repeated identical commands do not wake the other apps'
+  observers; `back_right` and `light_bar` need no such check, because
+  SharedPreferences notifies only on a real change. The bar's own buttons and
+  the main screen are never limited. The limits live in memory and start over
+  with the process. Not bounded: `BAR_SIDES`/`BAR_COLOUR` alternating values
+  (each rebuilds the window; a nuisance, not a lock-out).
 
 ## Status on the main screen
 

@@ -83,6 +83,10 @@ While the bar is paused, the app's screen says **"paused by automation"** and
 has a button **Show the bar again**, also while SeniorLauncher is locked. On the
 lock screen the bar is hidden anyway. Other values are ignored.
 
+`BACK`, `HOME` and `BAR_HIDE` are limited, so that no app can flood them: at
+most one a second and six a minute; more and they are ignored for two minutes.
+A rule that reacts to an app opening or closing stays well below that.
+
 **Example (Trigly):** trigger *App opened: YouTube*, action *Fire intent*, send
 mode *Broadcast*, action `app.phueber.seniornav.action.BAR_HIDE`, package
 `app.phueber.seniornav`. A second rule with *App closed: YouTube* sends
@@ -189,6 +193,11 @@ Solange die Leiste pausiert ist, sagt der Bildschirm der App **„durch
 Automatisierung pausiert“** und hat eine Taste **Leiste wieder zeigen**, auch
 wenn SeniorLauncher gesperrt ist. Auf dem Sperrbildschirm ist die Leiste ohnehin
 ausgeblendet. Andere Werte werden ignoriert.
+
+`BACK`, `HOME` und `BAR_HIDE` sind begrenzt, damit keine App sie massenhaft
+senden kann: höchstens einer pro Sekunde und sechs pro Minute; darüber hinaus
+werden sie zwei Minuten lang ignoriert. Eine Regel, die auf das Öffnen oder
+Schließen einer App reagiert, bleibt weit darunter.
 
 **Beispiel (Trigly):** Auslöser *App geöffnet: YouTube*, Aktion *Intent senden*,
 Sendeart *Broadcast*, Aktion `app.phueber.seniornav.action.BAR_HIDE`, Paket
