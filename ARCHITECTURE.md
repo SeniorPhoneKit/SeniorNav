@@ -182,7 +182,10 @@ permission (see Bar state for other apps).
   A Play release would still need the Accessibility API declaration form and a
   prominent disclosure; the app is distributed as an APK today.
 - **Navigation settings shortcut.** There is no public intent for System
-  navigation. The button tries the AOSP screen, then falls back to general
-  Settings, where the helper searches for "navigation".
+  navigation. The button tries the AOSP screen, then the
+  `GESTURE_NAVIGATION_SETTINGS` action pinned to `com.android.settings` (a
+  non-public action left open could be claimed by any app with a fake settings
+  screen), then falls back to general Settings, where the helper searches for
+  "navigation".
 - **Not device-tested yet.** Built and unit tested only; the overlay behaviour
   (layering, insets, keyboard, keyguard) still needs a run on real phones.
