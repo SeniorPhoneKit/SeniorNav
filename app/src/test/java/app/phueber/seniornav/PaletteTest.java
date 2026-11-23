@@ -34,6 +34,12 @@ public class PaletteTest {
         atLeast(4.5, c(Role.TEXT_MUTED, Role.CARD), "muted/card");
     }
 
+    @Test public void outlinesStandOutFromPageAndCards() {
+        // Outlined buttons and Back: WCAG 1.4.11, 3:1 for the edge of a control.
+        atLeast(3, c(Role.OUTLINE, Role.PAGE), "outline/page");
+        atLeast(3, c(Role.OUTLINE, Role.CARD), "outline/card");
+    }
+
     @Test public void whiteButtonTextIsReadable() {
         for (Role r : new Role[] {Role.GREEN, Role.BLUE, Role.RED}) {
             atLeast(4.5, Palette.contrast(Palette.ON_COLOR, Palette.color(r)), "white/" + r);

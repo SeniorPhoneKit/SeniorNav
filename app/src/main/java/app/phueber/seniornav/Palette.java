@@ -1,8 +1,9 @@
 package app.phueber.seniornav;
 
 /**
- * The colours, by role: the Light look of the other Senior apps (warm
- * off-white page, white cards, near-black text) plus the bar. Pure (no
+ * The colours, by role: the Light look of the other Senior apps (cool
+ * blue-grey page, white cards with a blue-grey outline, deep navy text, soft
+ * mid-navy outlines on buttons, as in SeniorLauncher's Light) plus the bar. Pure (no
  * android.* imports), so the contrast is checked by a JVM test. There is no
  * theme choice: the helper sees this app for a minute during setup, and the
  * senior only ever sees the bar.
@@ -26,20 +27,23 @@ final class Palette {
         BAR_DIVIDER,    // the line between Back and Home
         BAR_LIGHT,      // the light bar's background (setting "Light bar")
         ON_BAR_LIGHT,   // icons and words on the light bar
-        BAR_DIVIDER_LIGHT // the line on the light bar
+        BAR_DIVIDER_LIGHT, // the line on the light bar
+        OUTLINE         // outlined buttons, Back
     }
 
     /** Text on GREEN, BLUE and RED buttons. */
     static final int ON_COLOR = 0xFFFFFFFF;
 
     private static final int[] LIGHT = {
-            0xFFF4F2ED, 0xFFFFFFFF, 0xFFD9D5CC, 0xFF1C1B19, 0xFF5F5B54,
+            0xFFE8EDF4, 0xFFFFFFFF, 0xFFC3CEDD, 0xFF14213D, 0xFF46556E,
             0xFF2E7D32, 0xFFDCEFD9, 0xFF1F5F8B, 0xFFC62828, 0xFFFBE1E0,
-            0x33000000, 0x55FFFFFF,
+            0x33000000, 0x55FFFFFF, // press also on the light bar, kept as it was
             // The bar is near-black with white, like most system navigation bars.
             0xFF1C1B19, 0xFFFFFFFF, 0xFF8A857C,
             // The light bar: white with near-black, like light system bars.
             0xFFFFFFFF, 0xFF1C1B19, 0xFF8A857C,
+            // Outlined buttons and Back: a soft mid navy instead of a black edge.
+            0xFF6F82A3,
     };
 
     private Palette() {}

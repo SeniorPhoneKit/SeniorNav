@@ -131,7 +131,7 @@ public final class MainActivity extends Activity {
         TextView t = Ui.bold(this, getString(R.string.paused), Ui.TEXT_BODY);
         int p = Ui.dp(this, 16);
         t.setPadding(p, p, p, p);
-        t.setBackground(Ui.card(this, Ui.color(Palette.Role.CARD), Ui.color(Palette.Role.TEXT)));
+        t.setBackground(Ui.card(this, Ui.color(Palette.Role.CARD), Ui.color(Palette.Role.OUTLINE)));
         t.setAccessibilityLiveRegion(TextView.ACCESSIBILITY_LIVE_REGION_POLITE);
         content.addView(t, Ui.fullWidth(this, 12));
         Button show = Ui.button(this, getString(R.string.show_again), Palette.Role.GREEN);
