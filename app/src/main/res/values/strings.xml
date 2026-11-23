@@ -8,7 +8,7 @@
     <string name="bar_home">Home</string>
 
     <!-- Shown in Accessibility settings, and to Google Play reviewers. -->
-    <string name="service_description">Shows a big, fixed bar with Back and Home buttons at the bottom of the screen, over the phone\'s own navigation buttons. It is a navigation aid for older people and people with cognitive or motor impairments who find the small system buttons or swipe gestures hard to use. It only notices when windows change (to step aside for the lock screen) and, if the helper sets it up, presses of the volume buttons (to lock and unlock with a pattern, and to limit the volume while locked); it ignores every other key, cannot read what is on the screen, and sends nothing anywhere.</string>
+    <string name="service_description">Shows a big, fixed bar with Back and Home buttons at the bottom of the screen, over the phone\'s own navigation buttons. It is a navigation aid for older people and people with cognitive or motor impairments who find the small system buttons or swipe gestures hard to use. It only notices when windows change (to step aside for the lock screen and, if the helper sets it up, to keep the pull-down menu closed while the home screen is locked) and, if the helper sets it up, presses of the volume buttons (to lock and unlock with a pattern, and to limit the volume while locked); it ignores every other key, cannot read what is on the screen, and sends nothing anywhere.</string>
 
     <string name="status_on">✓ The bar is on.</string>
     <string name="status_paused">✗ The bar is paused.</string>
@@ -52,6 +52,11 @@
     <string name="unlocked_explain">When you unlock the home screen with its PIN (or the pattern below), the bar steps aside, so you can use the phone\'s own buttons. It comes back when you lock again. Only once a PIN has been set on the home screen.</string>
     <string name="unlocked_hide">Hide the bar while unlocked</string>
     <string name="unlocked_keep">Keep the bar while unlocked</string>
+    <string name="pulldown_heading">Pull-down menu</string>
+    <string name="pulldown_explain">Pulling down notifications and quick settings from the top edge.</string>
+    <string name="pulldown_needs_lock">Works only once a PIN is set on the home screen (SeniorLauncher).</string>
+    <string name="pulldown_allow">Always allow</string>
+    <string name="pulldown_block">Block while locked</string>
 
     <string name="pattern_heading">Lock with the volume buttons</string>
     <string name="pattern_explain">Press Volume Up and Down in your own pattern to lock or unlock the home screen and the other Senior apps: 4 to 6 presses, up and down mixed, within 3 seconds and at most 1 second apart. The volume goes back to where it was afterwards. Works while the screen is on and the bar is turned on, not during a call.</string>

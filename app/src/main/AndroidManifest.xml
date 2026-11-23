@@ -53,6 +53,7 @@
                 <action android:name="app.phueber.seniornav.action.VOLUME_KEYS" />
                 <action android:name="app.phueber.seniornav.action.VOLUME_LIMIT" />
                 <action android:name="app.phueber.seniornav.action.PATTERN_REMOVE" />
+                <action android:name="app.phueber.seniornav.action.PULLDOWN" />
             </intent-filter>
         </receiver>
 

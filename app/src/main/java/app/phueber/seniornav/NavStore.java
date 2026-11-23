@@ -16,6 +16,8 @@ import android.content.SharedPreferences;
  * - light_bar: white bar with dark icons. Default dark bar with white icons.
  * - hide_unlocked: the bar steps aside while SeniorLauncher's lock is in use
  *   but open (the helper has the phone). Default on.
+ * - block_pulldown: while SeniorLauncher is locked, the notifications and
+ *   Quick Settings cannot be pulled down (PullDown). Default off.
  * - pattern: the volume-button pattern ("UUDD"), absent when none.
  * - volume_keys: what the volume buttons do while locked (VolumeKeys.Mode).
  * - ring_min/ring_max, media_min/media_max, alarm_min: the volume limits while
@@ -27,6 +29,7 @@ final class NavStore {
     static final String KEY_BACK_RIGHT = "back_right";
     static final String KEY_LIGHT_BAR = "light_bar";
     static final String KEY_HIDE_UNLOCKED = "hide_unlocked";
+    static final String KEY_BLOCK_PULLDOWN = "block_pulldown";
     static final String KEY_PATTERN = "pattern";
     static final String KEY_VOLUME_KEYS = "volume_keys";
 
@@ -69,6 +72,14 @@ final class NavStore {
 
     static void setHideUnlocked(Context c, boolean hide) {
         prefs(c).edit().putBoolean(KEY_HIDE_UNLOCKED, hide).apply();
+    }
+
+    static boolean blockPullDown(Context c) {
+        return prefs(c).getBoolean(KEY_BLOCK_PULLDOWN, false);
+    }
+
+    static void setBlockPullDown(Context c, boolean block) {
+        prefs(c).edit().putBoolean(KEY_BLOCK_PULLDOWN, block).apply();
     }
 
     /** The usable pattern, or null. */
@@ -125,7 +136,8 @@ final class NavStore {
         VolumeLimits.Stream[] streams = VolumeLimits.Stream.values();
         VolumeLimits[] limits = new VolumeLimits[streams.length];
         for (VolumeLimits.Stream s : streams) limits[s.ordinal()] = limits(c, s);
-        return new NavBackup(backRight(c), lightBar(c), hideUnlocked(c), pattern(c), volumeKeys(c), limits);
+        return new NavBackup(backRight(c), lightBar(c), hideUnlocked(c), blockPullDown(c), pattern(c),
+                volumeKeys(c), limits);
     }
 
     /**
@@ -138,6 +150,7 @@ final class NavStore {
                 .putBoolean(KEY_BACK_RIGHT, b.backRight)
                 .putBoolean(KEY_LIGHT_BAR, b.lightBar)
                 .putBoolean(KEY_HIDE_UNLOCKED, b.hideUnlocked)
+                .putBoolean(KEY_BLOCK_PULLDOWN, b.blockPullDown)
                 .putString(KEY_VOLUME_KEYS, b.volumeKeys.id);
         if (b.pattern == null) e.remove(KEY_PATTERN);
         else e.putString(KEY_PATTERN, b.pattern);

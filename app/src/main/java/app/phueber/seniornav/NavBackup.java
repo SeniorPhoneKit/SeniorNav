@@ -7,18 +7,20 @@ import java.util.Map;
  * The helper's settings as they go into a backup file (see Backup), and back.
  * Pure, so it is unit tested; NavSettingsBackup reads and writes NavStore.
  *
- * Saved: the button order, the bar colour, hiding while unlocked, the volume
+ * Saved: the button order, the bar colour, hiding while unlocked, blocking
+ * the pull-down while locked, the volume
  * pattern, the volume-button mode and the limits. Not saved: whether the
  * service is switched on (a system switch the helper turns on in
  * Accessibility settings), whether automation paused the bar (a moment's
  * state, not a setting), and the lock, which is SeniorLauncher's.
  *
  * <pre>
- * {"backRight": false, "lightBar": true, "hideWhileUnlocked": true,
+ * {"backRight": false, "lightBar": true, "hideWhileUnlocked": true, "blockPullDown": false,
  *  "pattern": "UUDD", "volumeKeys": "limits",
  *  "limits": {"ring": {"min": 2, "max": 5}, "media": {"min": 0}, "alarm": {"min": 3}}}
  * </pre>
- * A missing field takes the default (no pattern; a missing "max" is the top).
+ * A missing field takes the default (no pattern; pull-down not blocked; a
+ * missing "max" is the top).
  * A wrong type or an invalid value (a pattern without both directions, an
  * unknown mode, a maximum below the minimum) makes the file unreadable:
  * nothing is restored.
@@ -30,17 +32,19 @@ final class NavBackup {
     final boolean backRight;
     final boolean lightBar;
     final boolean hideUnlocked;
+    final boolean blockPullDown;
     /** Normalised, or null for none. */
     final String pattern;
     final VolumeKeys.Mode volumeKeys;
     /** Indexed by VolumeLimits.Stream.ordinal(). */
     final VolumeLimits[] limits;
 
-    NavBackup(boolean backRight, boolean lightBar, boolean hideUnlocked, String pattern,
-            VolumeKeys.Mode volumeKeys, VolumeLimits[] limits) {
+    NavBackup(boolean backRight, boolean lightBar, boolean hideUnlocked, boolean blockPullDown,
+            String pattern, VolumeKeys.Mode volumeKeys, VolumeLimits[] limits) {
         this.backRight = backRight;
         this.lightBar = lightBar;
         this.hideUnlocked = hideUnlocked;
+        this.blockPullDown = blockPullDown;
         this.pattern = VolumePattern.normalize(pattern);
         this.volumeKeys = volumeKeys == null ? VolumeKeys.Mode.NORMAL : volumeKeys;
         this.limits = new VolumeLimits[VolumeLimits.Stream.values().length];
@@ -60,6 +64,7 @@ final class NavBackup {
         m.put("backRight", backRight);
         m.put("lightBar", lightBar);
         m.put("hideWhileUnlocked", hideUnlocked);
+        m.put("blockPullDown", blockPullDown);
         if (pattern != null) m.put("pattern", pattern);
         m.put("volumeKeys", volumeKeys.id);
         Map<String, Object> all = new LinkedHashMap<>();
@@ -101,7 +106,8 @@ final class NavBackup {
             limits[s.ordinal()] = new VolumeLimits(min, max);
         }
         return new NavBackup(Backup.bool(m, "backRight", false), Backup.bool(m, "lightBar", false),
-                Backup.bool(m, "hideWhileUnlocked", true), pattern, mode, limits);
+                Backup.bool(m, "hideWhileUnlocked", true), Backup.bool(m, "blockPullDown", false),
+                pattern, mode, limits);
     }
 
     /** Only the stored ids: the file is written by the app, not typed by people. */

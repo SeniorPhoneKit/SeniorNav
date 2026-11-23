@@ -15,7 +15,7 @@ public class NavBackupTest {
     private static NavBackup sample() {
         VolumeLimits[] l = {new VolumeLimits(2, 5), new VolumeLimits(1, VolumeLimits.NO_MAX),
                 new VolumeLimits(3, VolumeLimits.NO_MAX)};
-        return new NavBackup(true, true, false, "uudd", VolumeKeys.Mode.LIMITS, l);
+        return new NavBackup(true, true, false, true, "uudd", VolumeKeys.Mode.LIMITS, l);
     }
 
     private static void assertSame(NavBackup a, NavBackup b) {
@@ -45,6 +45,7 @@ public class NavBackupTest {
         assertTrue(back.backRight);
         assertTrue(back.lightBar);
         assertFalse(back.hideUnlocked);
+        assertTrue(back.blockPullDown);
         assertEquals("UUDD", back.pattern);
         assertEquals(VolumeKeys.Mode.LIMITS, back.volumeKeys);
         assertEquals(5, back.limits(VolumeLimits.Stream.RING).max);
@@ -53,7 +54,7 @@ public class NavBackupTest {
     }
 
     @Test public void defaultsRoundTripWithoutPattern() throws Exception {
-        NavBackup d = new NavBackup(false, false, true, null, VolumeKeys.Mode.NORMAL, null);
+        NavBackup d = new NavBackup(false, false, true, false, null, VolumeKeys.Mode.NORMAL, null);
         assertFalse(d.toSettings().containsKey("pattern"));
         assertSame(d, viaFile(d));
     }
@@ -64,6 +65,7 @@ public class NavBackupTest {
         assertFalse(b.backRight);
         assertFalse(b.lightBar);
         assertTrue(b.hideUnlocked);
+        assertFalse(b.blockPullDown); // an older file: the pull-down stays allowed
         assertNull(b.pattern);
         assertEquals(VolumeKeys.Mode.NORMAL, b.volumeKeys);
         for (VolumeLimits.Stream s : VolumeLimits.Stream.values()) {

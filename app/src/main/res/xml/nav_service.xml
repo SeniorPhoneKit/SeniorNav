@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Window changes (to re-check the lock screen) and the volume buttons, no
+<!-- Window changes (to re-check the lock screen, and while the pull-down is
+     blocked to close the shade on an event from System UI, by package name
+     only) and the volume buttons, no
      content events and no access to window content. canRequestFilterKeyEvents
      lets the service see hardware key presses before apps do; it handles Volume
      Up and Down only (the helper's lock pattern, and what the buttons may do
