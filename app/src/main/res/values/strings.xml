@@ -57,6 +57,9 @@
     <string name="pulldown_needs_lock">Works only once a PIN is set on the home screen (SeniorLauncher).</string>
     <string name="pulldown_allow">Always allow</string>
     <string name="pulldown_block">Block while locked</string>
+    <string name="pulldown_ways_generic">Some phones can still open the menu another way.</string>
+    <string name="pulldown_ways_fingerprint">“Swipe fingerprint for notifications” is on: it can still open the menu.</string>
+    <string name="open_gestures">Open system settings</string>
 
     <string name="pattern_heading">Lock with the volume buttons</string>
     <string name="pattern_explain">Press Volume Up and Down in your own pattern to lock or unlock the home screen and the other Senior apps: 4 to 6 presses, up and down mixed, within 3 seconds and at most 1 second apart. The volume goes back to where it was afterwards. Works while the screen is on and the bar is turned on, not during a call.</string>
@@ -153,5 +156,19 @@
     </string-array>
     <string-array name="steps_dnd_notes">
         <item>The list did not open? In Settings: “Apps”, “Special app access”, “Do Not Disturb access”.</item>
+    </string-array>
+    <string name="steps_ways_title">Turn off other ways to the menu</string>
+    <string-array name="steps_ways">
+        <item>Tap “Open system settings” below.</item>
+        <item>Tap “Gestures”.</item>
+        <item>“Swipe fingerprint for notifications”: turn it off.</item>
+        <item>“One-handed mode”: turn it off, or under “Swipe down to” choose “Pull screen into reach”.</item>
+        <item>Come back here.</item>
+    </string-array>
+    <string-array name="steps_ways_notes">
+        <item>Not listed? This phone does not have that gesture.</item>
+        <item>Only the Settings list opened? Tap “System”, then “Gestures”.</item>
+        <item>Samsung: “Advanced features”, then “Motions and gestures”, then turn off “Finger sensor gestures” (if listed).</item>
+        <item>“Swipe down anywhere” on the home screen (Samsung, Xiaomi, OnePlus) belongs to the phone’s own home screen app: it does not apply while SeniorLauncher is the home screen.</item>
     </string-array>
 </resources>

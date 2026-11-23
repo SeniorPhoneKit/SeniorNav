@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.Settings;
 
 /**
@@ -49,6 +50,29 @@ final class NavSettings {
         return NavMode.of(setting, resource);
     }
 
+    /**
+     * Best effort, no permission: the other ways this phone can open the
+     * pull-down (PullDownWays). "Swipe fingerprint for notifications" is a
+     * hidden secure setting that may be missing or refused; the note then
+     * falls back to the general line. One-handed mode cannot be read at all.
+     */
+    static PullDownWays.Note pullDownWays(Context c) {
+        return PullDownWays.note("Google".equalsIgnoreCase(Build.MANUFACTURER),
+                secureInt(c, "system_navigation_keys_enabled"),
+                Build.VERSION.SDK_INT, navMode(c));
+    }
+
+    private static int secureInt(Context c, String key) {
+        try {
+            String s = Settings.Secure.getString(c.getContentResolver(), key);
+            if (s == null) return PullDownWays.ABSENT;
+            return Integer.parseInt(s.trim());
+        } catch (RuntimeException e) {
+            // refused for apps on this phone, or not a number
+            return PullDownWays.UNREADABLE;
+        }
+    }
+
     static void openAccessibility(Activity a) {
         open(a, new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
     }
@@ -77,6 +101,22 @@ final class NavSettings {
                         .setPackage("com.android.settings"),
                 new Intent("android.settings.GESTURE_NAVIGATION_SETTINGS")
                         .setPackage("com.android.settings"),
+                new Intent(Settings.ACTION_SETTINGS),
+        };
+        for (Intent i : tries) {
+            if (start(a, i)) return;
+        }
+    }
+
+    /**
+     * The System page, where Pixel and stock Android keep "Gestures" (Android
+     * 15 has no screen of its own for it to open), pinned to the Settings app;
+     * else the general settings page.
+     */
+    static void openGestures(Activity a) {
+        Intent[] tries = {
+                new Intent().setComponent(new ComponentName("com.android.settings",
+                        "com.android.settings.Settings$SystemDashboardActivity")),
                 new Intent(Settings.ACTION_SETTINGS),
         };
         for (Intent i : tries) {

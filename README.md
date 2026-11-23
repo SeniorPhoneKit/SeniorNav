@@ -79,7 +79,11 @@ These settings are on the app's screen while the home screen is unlocked.
   while the home screen is locked; if they open some other way, they close
   again at once. Unlocked, and on the phone's own lock screen, they work as
   usual. It needs a PIN on the home screen; without SeniorLauncher it does
-  nothing.
+  nothing. Some phones can open the menu another way (fingerprint swipe,
+  one-handed mode, Samsung's finger sensor gestures); a note below the choice
+  says so and **How? Show the steps** shows how to turn them off. On Pixel
+  phones it names the fingerprint swipe when it is on and goes away once
+  nothing else can open the menu.
 - **Lock with the volume buttons**: tap **Record pattern** and press Volume
   Up and Down 4 to 6 times, mixing both (▲ ▲ ▼ ▼, for example), then **Save
   pattern**. Pressing it later, within 3 seconds and with at most 1 second
@@ -258,7 +262,13 @@ entsperrt ist.
   oben herunterziehen, solange die Startseite gesperrt ist; öffnen sie sich auf
   anderem Weg, schließen sie sich sofort wieder. Entsperrt und auf dem
   Sperrbildschirm des Telefons funktionieren sie wie gewohnt. Es braucht eine
-  PIN auf der Startseite; ohne SeniorLauncher bewirkt es nichts.
+  PIN auf der Startseite; ohne SeniorLauncher bewirkt es nichts. Manche
+  Telefone öffnen das Menü auch auf anderem Weg (Wischen über den
+  Fingerabdrucksensor, Einhandmodus, Samsungs Fingersensorgesten); ein Hinweis
+  unter der Auswahl sagt das, und **Wie? Schritte zeigen** zeigt, wie man sie
+  ausschaltet. Auf Pixel-Telefonen nennt er das Wischen über den
+  Fingerabdrucksensor, wenn es an ist, und verschwindet, sobald nichts anderes
+  das Menü öffnen kann.
 - **Mit den Lautstärketasten sperren**: **Muster aufnehmen** antippen und
   4- bis 6-mal Lauter und Leiser drücken, beide gemischt (zum Beispiel ▲ ▲ ▼ ▼),
   dann **Muster speichern**. Wird es später gedrückt, innerhalb von
