@@ -41,6 +41,11 @@ import android.widget.FrameLayout;
  *
  * The bar's window is attached once and stays attached while the service
  * runs; hiding makes it invisible and untouchable instead of removing it.
+ *
+ * While SeniorLauncher is locked and the helper chose so (NavStore.blockPullDown),
+ * a second, invisible window over the status bar takes the touches that would
+ * pull down the notifications and Quick Settings, and a System UI window event
+ * closes the shade again if it opened some other way (PullDown).
  */
 public final class NavBarService extends AccessibilityService {
     /** Whether the service is connected right now (for the main screen). */
@@ -100,6 +105,15 @@ public final class NavBarService extends AccessibilityService {
     private LockState lock = LockState.NONE;
     private VolumeGuard volume;
 
+    /** The invisible strip over the status bar, attached only while blocking applies. */
+    private View strip;
+    /** The window manager refused the strip: not tried again until the setting, a rotation or a reconnect. */
+    private boolean stripRefused;
+    /** Blocking applied at the last refresh. */
+    private boolean blocking;
+    private long lastClose;
+    private final Runnable closeShade = this::closeShade;
+
     /** SeniorLauncher locked or unlocked: show or hide the bar, apply the limits. */
     private final ContentObserver lockChanges = new ContentObserver(handler) {
         @Override public void onChange(boolean selfChange) {
@@ -120,6 +134,7 @@ public final class NavBarService extends AccessibilityService {
         if (key == null || NavStore.KEY_VOLUME_KEYS.equals(key) || NavStore.isLimitKey(key)) {
             volume.enforce();
         }
+        if (key == null || NavStore.KEY_BLOCK_PULLDOWN.equals(key)) stripRefused = false;
         refresh();
     };
 
@@ -188,6 +203,11 @@ public final class NavBarService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
+        // The shade opened anyway (a launcher's "swipe down anywhere", a
+        // swipe while the strip was not there yet): close it at once. Only
+        // the package of the event is looked at; anything else from System UI
+        // (volume panel, ...) just gets a close that does nothing.
+        if (blocking && PullDown.fromSystemUi(event.getPackageName())) closeShade();
         scheduleRefresh();
     }
 
@@ -234,6 +254,8 @@ public final class NavBarService extends AccessibilityService {
         super.onConfigurationChanged(newConfig);
         if (!running) return;
         detach();
+        detachStrip(); // again at the new status bar height
+        stripRefused = false;
         attach();
         refresh();
     }
@@ -259,6 +281,7 @@ public final class NavBarService extends AccessibilityService {
         if (volume != null) volume.stop();
         handler.removeCallbacks(refresh);
         handler.removeCallbacks(retryAttach);
+        handler.removeCallbacks(closeShade);
         try {
             unregisterReceiver(screen);
             unregisterReceiver(launcherPackage);
@@ -266,6 +289,8 @@ public final class NavBarService extends AccessibilityService {
             // never registered
         }
         detach();
+        detachStrip();
+        blocking = false;
         BarProvider.notifyChanged(this);
     }
 
@@ -329,8 +354,6 @@ public final class NavBarService extends AccessibilityService {
 
     private void refresh() {
         if (!running) return;
-        if (!attached && SystemClock.uptimeMillis() >= nextAttachAt) attach(); // refused before
-        if (!attached) return;
         KeyguardManager km = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
         boolean locked = km != null && km.isKeyguardLocked();
         // Screen off (the always-on display) and a screensaver (the charging
@@ -344,7 +367,71 @@ public final class NavBarService extends AccessibilityService {
         // phone and uses its own buttons (BarProvider still says 1, so the
         // apps do not bring back their own Back meanwhile).
         boolean helper = lock.hidesBar(NavStore.hideUnlocked(this));
+        updatePullDown(PullDown.blocks(NavStore.blockPullDown(this), lock, locked, interactive, dreaming));
+        if (!attached && SystemClock.uptimeMillis() >= nextAttachAt) attach(); // refused before
+        if (!attached) return;
         setVisible(interactive && !dreaming && !locked && !NavStore.paused(this) && !helper);
+    }
+
+    /**
+     * Blocking starts or stops: the strip comes or goes. Not paused by
+     * BAR_HIDE: that pauses the bar, not the lock. Starting also closes a
+     * shade that is open at that moment.
+     */
+    private void updatePullDown(boolean block) {
+        boolean was = blocking;
+        blocking = block;
+        if (!block) {
+            detachStrip();
+            handler.removeCallbacks(closeShade);
+            return;
+        }
+        attachStrip();
+        if (!was) closeShade();
+    }
+
+    @SuppressLint("ClickableViewAccessibility") // it only swallows touches; there is nothing to click
+    private void attachStrip() {
+        if (strip != null || stripRefused || wm == null) return;
+        View v = new View(this);
+        v.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        v.setOnTouchListener((view, e) -> true);
+        try {
+            wm.addView(v, Bar.stripParams(Bar.statusBarHeight(this, wm)));
+            strip = v;
+        } catch (RuntimeException e) {
+            stripRefused = true; // the safety net still closes the shade
+        }
+    }
+
+    private void detachStrip() {
+        if (strip == null) return;
+        try {
+            wm.removeViewImmediate(strip);
+        } catch (RuntimeException ignored) {
+            // already gone
+        }
+        strip = null;
+    }
+
+    /**
+     * Closes the notification shade (Android 12+; a no-op when it is closed),
+     * at most every PullDown.CLOSE_GAP_MS, so it can never run in a tight
+     * loop; a request within the gap is done once the gap is over. Older
+     * versions have no such action, and Back would be a guess (the service
+     * cannot tell the shade from other System UI windows), so there only the
+     * strip blocks.
+     */
+    private void closeShade() {
+        if (!blocking || Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return;
+        long now = SystemClock.uptimeMillis();
+        handler.removeCallbacks(closeShade);
+        if (!PullDown.mayClose(now, lastClose)) {
+            handler.postDelayed(closeShade, lastClose + PullDown.CLOSE_GAP_MS - now);
+            return;
+        }
+        lastClose = now;
+        performGlobalAction(GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE);
     }
 
     private void setVisible(boolean show) {

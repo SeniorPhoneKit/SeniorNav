@@ -93,6 +93,63 @@ final class Bar {
     }
 
     /**
+     * The pull-down blocker's window: an accessibility overlay over the status
+     * bar, full width, at the top, also in the cutout. It draws nothing and
+     * takes every touch inside it, so a swipe that starts there never reaches
+     * System UI. Above the status bar for the same reason as the bar is above
+     * the navigation bar.
+     */
+    static WindowManager.LayoutParams stripParams(int heightPx) {
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, heightPx,
+                WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                        | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+                        | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                PixelFormat.TRANSLUCENT);
+        lp.gravity = Gravity.TOP | Gravity.FILL_HORIZONTAL;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            lp.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS;
+            lp.setFitInsetsTypes(0);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            lp.layoutInDisplayCutoutMode =
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+        }
+        lp.setTitle("SeniorNav pull-down");
+        return lp;
+    }
+
+    /**
+     * The height of the status bar (see {@link PullDown#stripHeight}): the
+     * status bar or cutout inset the window manager reports (Android 11+,
+     * also while an app hides the status bar), else the framework's
+     * status_bar_height, else 24dp.
+     */
+    @SuppressLint({"DiscouragedApi", "InternalInsetResource"}) // only the fallback; no public API without a window
+    static int statusBarHeight(Context c, WindowManager wm) {
+        int inset = 0, cutout = 0, resource = 0;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            try {
+                WindowInsets in = wm.getCurrentWindowMetrics().getWindowInsets();
+                inset = in.getInsetsIgnoringVisibility(WindowInsets.Type.statusBars()).top;
+                cutout = in.getInsets(WindowInsets.Type.displayCutout()).top;
+            } catch (RuntimeException ignored) {
+                // not a visual context on this version: use the resource
+            }
+        }
+        try {
+            Resources r = c.getResources();
+            int id = r.getIdentifier("status_bar_height", "dimen", "android");
+            if (id != 0) resource = r.getDimensionPixelSize(id);
+        } catch (RuntimeException ignored) {
+            // the fallback below
+        }
+        int fallback = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                PullDown.FALLBACK_DP, c.getResources().getDisplayMetrics()));
+        return PullDown.stripHeight(inset, cutout, resource, fallback);
+    }
+
+    /**
      * {@code backRight}: Home on the left and Back on the right instead of the default.
      * {@code light}: white bar with dark icons instead of the default dark bar.
      */

@@ -70,6 +70,12 @@ These settings are on the app's screen while the home screen is unlocked.
   so you can use the phone's own buttons; it comes back as soon as the phone
   is locked again. The app's screen then says **"hidden while unlocked"**. A
   phone whose home screen was never locked keeps its bar.
+- **Pull-down menu** (default **Always allow**): with **Block while locked**,
+  the notifications and quick settings cannot be pulled down from the top
+  while the home screen is locked; if they open some other way, they close
+  again at once. Unlocked, and on the phone's own lock screen, they work as
+  usual. It needs a PIN on the home screen; without SeniorLauncher it does
+  nothing.
 - **Lock with the volume buttons**: tap **Record pattern** and press Volume
   Up and Down 4 to 6 times, mixing both (▲ ▲ ▼ ▼, for example), then **Save
   pattern**. Pressing it later, within 3 seconds and with at most 1 second
@@ -98,7 +104,7 @@ the settings above is in use.
 
 At the bottom of the app's screen (while unlocked), under **Backup**: **Save
 settings to a file** keeps the button order, the bar colour, hiding while
-unlocked, the volume pattern, what the volume buttons do while locked and the
+unlocked, blocking the pull-down menu, the volume pattern, what the volume buttons do while locked and the
 limits in a file you choose (Downloads, Google Drive, …). **Load settings from
 a file** puts them back, after a reset or on a new phone, once you confirm
 **Replace**. The bar itself is switched on again in Accessibility settings, and
@@ -130,6 +136,7 @@ the package `app.phueber.seniornav`; extras are text.
 | Broadcast | `app.phueber.seniornav.action.VOLUME_KEYS` | `mode` = `normal`, `limits` or `off` | What the volume buttons do while locked |
 | Broadcast | `app.phueber.seniornav.action.VOLUME_LIMIT` | `stream` = `ring`, `media` or `alarm`; `min` and/or `max` = a step (`max` also `top`; none for `alarm`) | Sets a volume limit, in the steps of the phone's slider |
 | Broadcast | `app.phueber.seniornav.action.PATTERN_REMOVE` | none | Removes the volume-button pattern |
+| Broadcast | `app.phueber.seniornav.action.PULLDOWN` | `block` = `on` or `off` | Blocks the pull-down menu while the home screen is locked, or allows it |
 
 While the bar is paused, the app's screen says **"paused by automation"** and
 has a button **Show the bar again**, also while SeniorLauncher is locked. On the
@@ -154,7 +161,8 @@ mode *Broadcast*, action `app.phueber.seniornav.action.BAR_HIDE`, package
 The app has no internet access at all (it does not even ask for it), no
 account, no tracking and no ads. It uses Android's accessibility service only
 to press Back and Home, to notice when the lock screen shows and, if the
-helper sets it up, to see presses of Volume Up and Down. It never reads what
+helper sets it up, to see presses of Volume Up and Down and to keep the
+pull-down menu closed while locked. It never reads what
 is on the screen or any other key.
 
 ## Contributing and licence
@@ -236,6 +244,12 @@ entsperrt ist.
   benutzen können; sie kommt zurück, sobald wieder gesperrt ist. Der
   Bildschirm der App sagt dann **„ausgeblendet solange entsperrt“**. Ein
   Telefon, dessen Startseite nie gesperrt wurde, behält seine Leiste.
+- **Menü von oben** (Standard **Immer erlauben**): Mit **Blockieren, solange
+  gesperrt** lassen sich Benachrichtigungen und Schnelleinstellungen nicht von
+  oben herunterziehen, solange die Startseite gesperrt ist; öffnen sie sich auf
+  anderem Weg, schließen sie sich sofort wieder. Entsperrt und auf dem
+  Sperrbildschirm des Telefons funktionieren sie wie gewohnt. Es braucht eine
+  PIN auf der Startseite; ohne SeniorLauncher bewirkt es nichts.
 - **Mit den Lautstärketasten sperren**: **Muster aufnehmen** antippen und
   4- bis 6-mal Lauter und Leiser drücken, beide gemischt (zum Beispiel ▲ ▲ ▼ ▼),
   dann **Muster speichern**. Wird es später gedrückt, innerhalb von
@@ -268,7 +282,8 @@ eine der Einstellungen oben genutzt wird.
 
 Unten auf dem Bildschirm der App (wenn entsperrt), unter **Sicherung**:
 **Einstellungen in eine Datei speichern** bewahrt die Reihenfolge der Tasten,
-die Farbe der Leiste, das Ausblenden im entsperrten Zustand, das Muster der
+die Farbe der Leiste, das Ausblenden im entsperrten Zustand, das Blockieren
+des Menüs von oben, das Muster der
 Lautstärketasten, was die Lautstärketasten gesperrt tun, und die Grenzen in
 einer Datei auf, die Sie wählen (Downloads, Google Drive, …). **Einstellungen
 aus einer Datei laden** holt sie zurück, nach einem Zurücksetzen oder auf einem
@@ -304,6 +319,7 @@ Text.
 | Broadcast | `app.phueber.seniornav.action.VOLUME_KEYS` | `mode` = `normal`, `limits` oder `off` (auch `grenzen`/`aus`) | Was die Lautstärketasten tun, wenn gesperrt |
 | Broadcast | `app.phueber.seniornav.action.VOLUME_LIMIT` | `stream` = `ring`, `media` oder `alarm` (auch `klingelton`/`medien`/`wecker`); `min` und/oder `max` = eine Stufe (`max` auch `top`/`oben`; nicht bei `alarm`) | Setzt eine Lautstärkegrenze, in den Stufen des Schiebereglers |
 | Broadcast | `app.phueber.seniornav.action.PATTERN_REMOVE` | keine | Entfernt das Muster der Lautstärketasten |
+| Broadcast | `app.phueber.seniornav.action.PULLDOWN` | `block` = `on` oder `off` (auch `an`/`aus`) | Blockiert das Menü von oben, solange die Startseite gesperrt ist, oder erlaubt es |
 
 Solange die Leiste pausiert ist, sagt der Bildschirm der App **„durch
 Automatisierung pausiert“** und hat eine Taste **Leiste wieder zeigen**, auch
@@ -331,5 +347,6 @@ Die App hat keinerlei Internetzugang (sie fragt nicht einmal danach), kein
 Konto, kein Tracking und keine Werbung. Sie nutzt den Bedienungshilfe-Dienst von
 Android nur, um Zurück und Start zu drücken, um zu bemerken, wann der
 Sperrbildschirm gezeigt wird, und, wenn die helfende Person es einrichtet, um
-Drücke auf Lauter und Leiser zu sehen. Sie liest nie, was auf dem Bildschirm
+Drücke auf Lauter und Leiser zu sehen und das Menü von oben im gesperrten
+Zustand geschlossen zu halten. Sie liest nie, was auf dem Bildschirm
 steht, und keine andere Taste.

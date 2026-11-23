@@ -62,6 +62,7 @@ public class AutomationTest {
         assertEquals(Automation.Command.VOLUME_KEYS, Automation.parse("app.phueber.seniornav.action.VOLUME_KEYS"));
         assertEquals(Automation.Command.VOLUME_LIMIT, Automation.parse(Automation.VOLUME_LIMIT));
         assertEquals(Automation.Command.PATTERN_REMOVE, Automation.parse(Automation.PATTERN_REMOVE));
+        assertEquals(Automation.Command.PULLDOWN, Automation.parse("app.phueber.seniornav.action.PULLDOWN"));
         assertNull(Automation.parse("app.phueber.seniornav.action.UNLOCK"));
     }
 

@@ -22,6 +22,7 @@ final class Automation {
     static final String VOLUME_KEYS = PREFIX + "VOLUME_KEYS";
     static final String VOLUME_LIMIT = PREFIX + "VOLUME_LIMIT";
     static final String PATTERN_REMOVE = PREFIX + "PATTERN_REMOVE";
+    static final String PULLDOWN = PREFIX + "PULLDOWN";
 
     /** BAR_SIDES: which side Back goes to, "left" or "right". */
     static final String EXTRA_BACK = "back";
@@ -29,6 +30,8 @@ final class Automation {
     static final String EXTRA_COLOUR = "colour";
     /** BAR_UNLOCKED: "on" (hide the bar while unlocked) or "off". */
     static final String EXTRA_HIDE = "hide";
+    /** PULLDOWN: "on" (block pulling down while locked) or "off". */
+    static final String EXTRA_BLOCK = "block";
     /** VOLUME_KEYS: "normal", "limits" or "off" (VolumeKeys.parse). */
     static final String EXTRA_MODE = "mode";
     /** VOLUME_LIMIT: "ring", "media" or "alarm", and the steps "min" and "max". */
@@ -37,7 +40,7 @@ final class Automation {
     static final String EXTRA_MAX = "max";
 
     enum Command { BAR_HIDE, BAR_SHOW, BAR_SIDES, BAR_COLOUR, BACK, HOME,
-        BAR_UNLOCKED, VOLUME_KEYS, VOLUME_LIMIT, PATTERN_REMOVE }
+        BAR_UNLOCKED, VOLUME_KEYS, VOLUME_LIMIT, PATTERN_REMOVE, PULLDOWN }
 
     /** The command an action stands for, or null if it is none of ours. */
     static Command parse(String action) {

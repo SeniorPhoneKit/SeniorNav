@@ -12,7 +12,8 @@ import android.util.Log;
  * Commands from automation apps (Trigly, Tasker, ...), sent as explicit
  * broadcasts: pause and show the bar, choose the button sides, press Back or
  * Home, hide the bar while unlocked or not, what the volume buttons do while
- * locked, the volume limits, remove the lock pattern. There is no command
+ * locked, the volume limits, remove the lock pattern, block the pull-down
+ * while locked. There is no command
  * that unlocks or sets a pattern. Settings go to {@link NavStore}, which the running service listens to;
  * Back and Home need the running service and are dropped without it.
  *
@@ -93,6 +94,14 @@ public final class AutomationReceiver extends BroadcastReceiver {
                 break;
             case PATTERN_REMOVE:
                 NavStore.setPattern(ctx, null);
+                break;
+            case PULLDOWN:
+                Boolean block = Automation.onOff(intent.getStringExtra(Automation.EXTRA_BLOCK));
+                if (block == null) {
+                    Log.w(TAG, "PULLDOWN needs extra block=on or block=off");
+                } else {
+                    NavStore.setBlockPullDown(ctx, block);
+                }
                 break;
         }
     }

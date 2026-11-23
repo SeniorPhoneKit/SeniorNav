@@ -128,6 +128,7 @@ public final class MainActivity extends Activity {
             addSidesSection();
             addColourSection();
             addUnlockedSection();
+            addPullDownSection(lock);
             addPatternSection(lock);
             addKeysSection();
             addBackupSection();
@@ -246,6 +247,20 @@ public final class MainActivity extends Activity {
         boolean hide = NavStore.hideUnlocked(this);
         choice(getString(R.string.unlocked_hide), hide, () -> NavStore.setHideUnlocked(this, true));
         choice(getString(R.string.unlocked_keep), !hide, () -> NavStore.setHideUnlocked(this, false));
+    }
+
+    /**
+     * Whether the notifications and Quick Settings can be pulled down while
+     * locked (PullDown). One line: what it does, or that it needs the lock.
+     */
+    private void addPullDownSection(LockState lock) {
+        heading(R.string.pulldown_heading);
+        content.addView(Ui.text(this, getString(PullDown.lockInUse(lock)
+                ? R.string.pulldown_explain : R.string.pulldown_needs_lock), Ui.TEXT_BODY),
+                Ui.fullWidth(this, 8));
+        boolean block = NavStore.blockPullDown(this);
+        choice(getString(R.string.pulldown_allow), !block, () -> NavStore.setBlockPullDown(this, false));
+        choice(getString(R.string.pulldown_block), block, () -> NavStore.setBlockPullDown(this, true));
     }
 
     /** The volume-button pattern: what it is, record it, remove it. */

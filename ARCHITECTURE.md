@@ -6,8 +6,9 @@ every app. It cannot be moved, resized or swiped away. The app's one screen is
 for the helper: it says whether the bar is on and how to switch it on. With
 SeniorLauncher's shared lock it also hides the bar while the helper has
 unlocked, and lets the helper lock and unlock with a pattern of volume-button
-presses and limit what the volume buttons do while locked (see Volume buttons
-and the shared lock).
+presses, limit what the volume buttons do while locked (see Volume buttons
+and the shared lock) and block pulling down the notifications and Quick
+Settings while locked (see Pull-down blocked while locked).
 
 ## Design
 
@@ -49,7 +50,8 @@ and the shared lock).
   most every minute (`AttachRetry`; also at the next `refresh()` once that
   wait is over), never in a tight loop.
 - **Minimal events.** The service config asks for `typeWindowsChanged` and
-  `typeWindowStateChanged` only, as a cue to re-check the lock screen, and
+  `typeWindowStateChanged` only, as a cue to re-check the lock screen (and,
+while the pull-down is blocked, whether the event came from System UI), and
   `canRetrieveWindowContent` is off: the service cannot read window content or
   the window list. Bursts of events are folded into one check 150 ms after the
   last.
@@ -75,11 +77,12 @@ and the shared lock).
 | `VolumePattern` | Pure: what a valid pattern is (4-6 presses, both directions), the arrows shown, and the matcher (timing, stray presses, reset). Unit tested. |
 | `VolumeKeys` | Pure: the locked modes (normal / limits / off), the decision for one press (pass / limit / swallow, always pass during a call), when limits are enforced and when keys are needed at all. Unit tested. |
 | `VolumeLimits` | Pure: a stream's lowest and highest allowed step, clamping, whether a step stays in range, and moving one limit without crossing the other. Unit tested. |
+| `PullDown` | Pure: when blocking the pull-down applies (setting, locked, not on the keyguard, screen on, no screensaver), whether the lock is in use (the screen's one line), the strip's height (status bar inset, cutout, `status_bar_height`, 24dp) and the gap between two closes of the shade. Unit tested. |
 | `LockState` | Pure: SeniorLauncher's lock as read (answered, new enough, locked, PIN set) and whether the bar steps aside while unlocked. Unit tested. |
-| `Bar` | The bar's view (Back left, Home right, or swapped by the helper's choice; always the screen's left/right, also in RTL; each half the width, icon plus word; dark bar with white, or light bar with near-black and a grey top line) and its window parameters; reads the system navigation bar height. |
-| `MainActivity` | The helper's screen: status in words and colour ("hidden while unlocked" too), "paused by automation" with Show the bar again, the button order, the bar colour, hide while unlocked, the volume pattern (record, show, remove), the locked volume-button mode and the limits with the Do Not Disturb hint (all hidden while locked), the button to Accessibility settings, the "Allow restricted settings" hint (Android 13+), the navigation mode and the advice to use 3-button navigation, and Backup (save to / load from a file, hidden while locked). Back at the bottom goes home in one tap (hidden while the bar is on, see `NavBar`). |
-| `NavStore` | The settings, `paused`, `back_right`, `light_bar`, `hide_unlocked`, `pattern`, `volume_keys` and the limits (`ring_min`/`ring_max`, `media_min`/`media_max`, `alarm_min`), in one SharedPreferences file that the service, the screen and the receiver share. |
-| `AutomationReceiver` | Exported; BAR_HIDE/BAR_SHOW/BAR_SIDES/BAR_COLOUR/BAR_UNLOCKED/VOLUME_KEYS/VOLUME_LIMIT/PATTERN_REMOVE write `NavStore`, BACK/HOME go to `NavBarService.perform`. BACK/HOME and BAR_HIDE are rate-limited (`AutomationLimit`). |
+| `Bar` | The bar's view (Back left, Home right, or swapped by the helper's choice; always the screen's left/right, also in RTL; each half the width, icon plus word; dark bar with white, or light bar with near-black and a grey top line) and its window parameters; reads the system navigation bar height. Also the pull-down strip's window parameters and the status bar height. |
+| `MainActivity` | The helper's screen: status in words and colour ("hidden while unlocked" too), "paused by automation" with Show the bar again, the button order, the bar colour, hide while unlocked, block the pull-down while locked, the volume pattern (record, show, remove), the locked volume-button mode and the limits with the Do Not Disturb hint (all hidden while locked), the button to Accessibility settings, the "Allow restricted settings" hint (Android 13+), the navigation mode and the advice to use 3-button navigation, and Backup (save to / load from a file, hidden while locked). Back at the bottom goes home in one tap (hidden while the bar is on, see `NavBar`). |
+| `NavStore` | The settings, `paused`, `back_right`, `light_bar`, `hide_unlocked`, `block_pulldown`, `pattern`, `volume_keys` and the limits (`ring_min`/`ring_max`, `media_min`/`media_max`, `alarm_min`), in one SharedPreferences file that the service, the screen and the receiver share. |
+| `AutomationReceiver` | Exported; BAR_HIDE/BAR_SHOW/BAR_SIDES/BAR_COLOUR/BAR_UNLOCKED/VOLUME_KEYS/VOLUME_LIMIT/PATTERN_REMOVE/PULLDOWN write `NavStore`, BACK/HOME go to `NavBarService.perform`. BACK/HOME and BAR_HIDE are rate-limited (`AutomationLimit`). |
 | `AutomationLimit` | Pure: at most one automation action a second, six a minute, then a two-minute cooldown. Unit tested. |
 | `Automation` | Pure: action names, which command an action is, the `back` extra (`left`/`right`), the `colour` extra (`dark`/`light`), on/off, the `stream` extra and the volume steps. Unit tested. |
 | `NavSettings` | Reads the enabled-services setting and the navigation mode; opens Accessibility settings, App info and System navigation (no public action exists, so known AOSP screens are tried, then general Settings). |
@@ -87,7 +90,7 @@ and the shared lock).
 | `Ui` | Shared buttons and the screen frame, as in the other Senior apps. |
 | `NavBar` | Whether the senior can rely on the bar (`NavBarService.barVisible`, the rule `BarProvider` publishes; also true while it is hidden because the helper unlocked). While it is, the pinned Back button is hidden, since the bar already has Back and Home; shown again while it is paused or not running. Re-checked whenever a screen gets focus and on every `BarProvider` change while attached. |
 | `BarProvider` | Exported, read-only: tells the other Senior apps whether they need no Back of their own (see Bar state for other apps). |
-| `NavBackup` | Pure: the saved settings (sides, colour, hide while unlocked, pattern, volume-key mode, limits) to and from a backup entry, validated with `VolumePattern` and `VolumeKeys`. Unit tested. |
+| `NavBackup` | Pure: the saved settings (sides, colour, hide while unlocked, block pull-down, pattern, volume-key mode, limits) to and from a backup entry, validated with `VolumePattern` and `VolumeKeys`. Unit tested. |
 | `NavSettingsBackup` | Exports this app's backup file from `NavStore` and restores one into it (refused while locked). Used by the screen and `BackupProvider`. |
 | `BackupProvider` | Exported, `call` only: "export" and "import" for SeniorLauncher's all-apps backup; answers only SeniorLauncher and this app. |
 | `Backup`, `Json` | Pure: the family's backup file (envelope, version check, typed reads) and a small JSON reader/writer; the same in every Senior app. Unit tested. |
@@ -108,7 +111,8 @@ Automation apps (Trigly, Tasker, ...) send explicit broadcasts to the exported
 `BAR_UNLOCKED` (extra `hide` = `on`/`off`), `VOLUME_KEYS` (extra `mode` =
 `normal`/`limits`/`off`), `VOLUME_LIMIT` (extra `stream` =
 `ring`/`media`/`alarm`, `min` and/or `max` in the stream's steps, `max` also
-`top`; the alarm has no max), `PATTERN_REMOVE`, all under
+`top`; the alarm has no max), `PATTERN_REMOVE`, `PULLDOWN` (extra `block` =
+`on`/`off`), all under
 `app.phueber.seniornav.action.`. There is deliberately no command that unlocks,
 and none that sets a pattern (which would be an unlock path any app could
 plant). The new settings commands are not rate-limited, like `BAR_SIDES`:
@@ -205,6 +209,47 @@ SeniorLauncher is gone). Without SeniorLauncher, with an older one (no
 never uses the lock keeps its bar. A helper setting, `hide_unlocked`, default
 on; automation `BAR_UNLOCKED`.
 
+## Pull-down blocked while locked
+
+A helper setting, `block_pulldown`, default off (new behaviour, opt-in);
+automation `PULLDOWN`. While it is on and SeniorLauncher is locked, the
+senior cannot pull down the notifications or Quick Settings (and with them
+Wi-Fi, flight mode, Settings).
+
+- **When** (`PullDown.blocks`): the setting is on, SeniorLauncher answered and
+  is locked, and the phone is in use: not on the phone's own lock screen
+  (whose shade must stay as it is), not with the screen off, not during a
+  screensaver; the same checks and events as the bar. Unlocked, or without
+  SeniorLauncher, nothing happens; the main screen then says in one line that
+  it needs a PIN on the home screen. `BAR_HIDE` does not pause it: that pauses
+  the bar, not the lock.
+- **The strip.** A second `TYPE_ACCESSIBILITY_OVERLAY` window, full width at
+  the top, exactly as tall as the status bar (`PullDown.stripHeight`: the
+  status-bar inset ignoring visibility or the cutout, whichever is deeper,
+  else `status_bar_height`, else 24dp), cutout mode `ALWAYS`. It draws
+  nothing (the status bar icons stay visible) and swallows every touch in it,
+  so a swipe that starts there never reaches System UI. It is added only
+  while blocking applies and removed otherwise (not just made untouchable:
+  with the setting off there is no window at all), and rebuilt on a
+  configuration change, like the bar. Taps just below it reach the app (a
+  toolbar right under the status bar works). If the window manager refuses
+  it, it is not tried again until the setting changes, a rotation or a
+  reconnect; the safety net still works.
+- **The safety net.** If the shade opens anyway (a launcher's "swipe down
+  anywhere", a heads-up notification pulled down, `cmd statusbar`), any
+  window event from `com.android.systemui` while blocking applies closes it
+  with `GLOBAL_ACTION_DISMISS_NOTIFICATION_SHADE` (Android 12+), as does the
+  moment blocking starts. The service cannot tell the shade from other System
+  UI windows (volume panel, power menu): it reads only the event's package,
+  no text or window list, so the accessibility config is unchanged. That is
+  safe because the action only collapses the shade and does nothing when it
+  is closed (the volume panel stays). At most one close every 300 ms
+  (`PullDown.CLOSE_GAP_MS`), a later request is done once the gap is over,
+  so it can never fight in a tight loop; unlocking ends it at once. Below
+  Android 12 there is no such action, and Back would be a guess (it would
+  also go Back in the app when the event was not the shade), so there only
+  the strip blocks.
+
 ## Volume buttons and the shared lock
 
 All of it is set up by the helper on the main screen, hidden while locked, and
@@ -275,7 +320,7 @@ SeniorLauncher's "all Senior apps" file has the same shape with one entry per
 app; this app takes only its own entry from either.
 
 - **What is saved** (`NavBackup`): `backRight`, `lightBar`,
-  `hideWhileUnlocked`, `pattern` (absent when none), `volumeKeys`
+  `hideWhileUnlocked`, `blockPullDown` (missing in older files: off), `pattern` (absent when none), `volumeKeys`
   (`normal`/`limits`/`off`) and `limits` per stream (`min`, and `max` for ring
   and media, absent for "up to the top"). Not saved: whether the service is
   on (Android's switch, which the status card asks for on a new phone),
@@ -357,6 +402,14 @@ permission (see Bar state for other apps); `BackupProvider` too, checking the ca
   non-public action left open could be claimed by any app with a fake settings
   screen), then falls back to general Settings, where the helper searches for
   "navigation".
+- **Pull-down.** Phones whose shade opens from other places than the status
+  bar (some launchers and makers: swipe down anywhere on the home screen,
+  Samsung's or Xiaomi's own gestures) are caught only by the safety net, so
+  the shade may flash open for a moment; below Android 12 they are not
+  caught at all. While an app hides the status bar (full-screen video) the
+  strip still covers the top edge of the picture and takes its touches there.
+  A maker's System UI that does not honour the dismiss action keeps the shade
+  open. Checked on the Android 15 emulator only.
 - **Volume keys only while the screen is on.** With the screen off Android
   handles the volume keys before accessibility services see them (checked on
   the emulator): no pattern, no limits for presses, no "Do nothing". Changes
