@@ -55,6 +55,9 @@
     <string name="pulldown_needs_lock">Wirkt erst, wenn auf der Startseite eine PIN gewählt wurde (SeniorLauncher).</string>
     <string name="pulldown_allow">Immer erlauben</string>
     <string name="pulldown_block">Blockieren, solange gesperrt</string>
+    <string name="pulldown_ways_generic">Manche Telefone öffnen das Menü auch auf anderem Weg.</string>
+    <string name="pulldown_ways_fingerprint">„Benachrichtigungen durch Wischen über Fingerabdrucksensor einblenden“ ist an: Damit öffnet sich das Menü trotzdem.</string>
+    <string name="open_gestures">System-Einstellungen öffnen</string>
 
     <string name="pattern_heading">Mit den Lautstärketasten sperren</string>
     <string name="pattern_explain">Drücken Sie Lauter und Leiser in Ihrem eigenen Muster, um die Startseite und die anderen Senior-Apps zu sperren oder zu entsperren: 4 bis 6 Drücke, Lauter und Leiser gemischt, innerhalb von 3 Sekunden und höchstens 1 Sekunde Abstand. Die Lautstärke wird danach wieder wie vorher. Funktioniert bei eingeschaltetem Bildschirm und eingeschalteter Leiste, nicht während eines Anrufs.</string>
@@ -149,5 +152,19 @@
     </string-array>
     <string-array name="steps_dnd_notes">
         <item>Die Liste hat sich nicht geöffnet? In den Einstellungen: „Apps“, „Spezieller App-Zugriff“, „Zugriff während ‚Bitte nicht stören‘“.</item>
+    </string-array>
+    <string name="steps_ways_title">Andere Wege zum Menü ausschalten</string>
+    <string-array name="steps_ways">
+        <item>Unten auf „System-Einstellungen öffnen“ tippen.</item>
+        <item>Auf „Touch-Gesten &amp; Bewegungen“ tippen.</item>
+        <item>„Benachrichtigungen durch Wischen über Fingerabdrucksensor einblenden“: ausschalten.</item>
+        <item>„Einhandmodus“: ausschalten, oder unter „Beim Wischen nach unten…“ „Display nach unten ziehen“ wählen.</item>
+        <item>Zurück in diese App.</item>
+    </string-array>
+    <string-array name="steps_ways_notes">
+        <item>Nicht da? Dann hat das Telefon diese Geste nicht.</item>
+        <item>Nur die Liste der Einstellungen geöffnet? Auf „System“ tippen, dann auf „Touch-Gesten &amp; Bewegungen“.</item>
+        <item>Samsung: „Erweiterte Funktionen“, dann „Bewegungen und Gesten“, dann „Fingersensorgesten“ ausschalten (falls vorhanden).</item>
+        <item>„Überall nach unten wischen“ auf dem Startbildschirm (Samsung, Xiaomi, OnePlus) gehört zur Startseiten-App des Telefons: Solange SeniorLauncher die Startseite ist, gilt es nicht.</item>
     </string-array>
 </resources>

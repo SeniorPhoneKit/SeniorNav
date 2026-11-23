@@ -272,6 +272,30 @@ public final class MainActivity extends Activity {
         boolean block = NavStore.blockPullDown(this);
         choice(getString(R.string.pulldown_allow), !block, () -> NavStore.setBlockPullDown(this, false));
         choice(getString(R.string.pulldown_block), block, () -> NavStore.setBlockPullDown(this, true));
+        if (block) addPullDownWays();
+    }
+
+    /**
+     * Other ways this phone can open the menu, which the strip cannot stop
+     * (PullDownWays): one line naming the gesture that is on, or the general
+     * line where SeniorNav cannot tell, with the steps behind the button.
+     * Nothing when all are known to be off. Read again on every resume.
+     */
+    private void addPullDownWays() {
+        PullDownWays.Note note = NavSettings.pullDownWays(this);
+        if (note == PullDownWays.Note.NONE) return;
+        int line = note == PullDownWays.Note.FINGERPRINT
+                ? R.string.pulldown_ways_fingerprint : R.string.pulldown_ways_generic;
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        int p = Ui.dp(this, 16);
+        card.setPadding(p, p, p, p);
+        card.setBackground(Ui.card(this, Ui.color(Palette.Role.CARD), Ui.color(Palette.Role.OUTLINE)));
+        card.addView(Ui.text(this, getString(line), Ui.TEXT_BODY));
+        card.addView(Steps.button(this, R.string.steps_ways_title, R.array.steps_ways,
+                R.array.steps_ways_notes, new Steps.Action(R.string.open_gestures,
+                        () -> NavSettings.openGestures(this))), Ui.fullWidth(this, 12));
+        content.addView(card, Ui.fullWidth(this, 16));
     }
 
     /** The volume-button pattern: what it is, record it, remove it. */
