@@ -20,6 +20,7 @@ together is in [ARCHITECTURE.md](ARCHITECTURE.md).
 - **English and German.** Every user-visible string goes in both
   `res/values/strings.xml` and `res/values-de/strings.xml`.
 - **Big and plain.** High contrast, state shown in words as well as by colour.
+  Exception: the helper-only step cards (`Steps`) use normal Android sizes.
 
 ## Building
 
