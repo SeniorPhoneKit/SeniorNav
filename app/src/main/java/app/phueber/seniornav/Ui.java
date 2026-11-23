@@ -102,12 +102,12 @@ final class Ui {
         return b;
     }
 
-    /** White card button with a dark border and dark text: secondary actions. */
+    /** White card button with a soft navy border and dark text: secondary actions. */
     static Button outlined(Context c, CharSequence label) {
         Button b = button(c, label, Palette.Role.CARD);
         b.setTextColor(color(Palette.Role.TEXT));
         b.setBackground(ripple(c, Palette.Role.PRESS_ON_CARD, color(Palette.Role.CARD),
-                color(Palette.Role.TEXT), 20));
+                color(Palette.Role.OUTLINE), 20));
         return b;
     }
 
@@ -125,7 +125,8 @@ final class Ui {
         b.setGravity(Gravity.CENTER);
         b.setMinimumHeight(dp(a, BUTTON_HEIGHT));
         b.setPadding(dp(a, 16), dp(a, 8), dp(a, 16), dp(a, 8));
-        b.setBackground(ripple(a, Palette.Role.PRESS_ON_CARD, color(Palette.Role.CARD), fg, 20));
+        b.setBackground(ripple(a, Palette.Role.PRESS_ON_CARD, color(Palette.Role.CARD),
+                color(Palette.Role.OUTLINE), 20));
         b.setClickable(true);
         b.setFocusable(true);
         b.setContentDescription(a.getString(R.string.back));

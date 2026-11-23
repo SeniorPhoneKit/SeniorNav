@@ -88,7 +88,7 @@ and the shared lock).
 | `NavBar` | Whether the senior can rely on the bar (`NavBarService.barVisible`, the rule `BarProvider` publishes; also true while it is hidden because the helper unlocked). While it is, the pinned Back button is hidden, since the bar already has Back and Home; shown again while it is paused or not running. Re-checked whenever a screen gets focus and on every `BarProvider` change while attached. |
 | `BarProvider` | Exported, read-only: tells the other Senior apps whether they need no Back of their own (see Bar state for other apps). |
 | `AttachRetry` | Pure: the growing wait before attaching a refused window again. Unit tested. |
-| `Palette` | Pure: the colours by role (the family's Light look plus the bar) and the WCAG contrast check. Unit tested. |
+| `Palette` | Pure: the colours by role (the family's Light look, the daylight twin of SeniorLauncher's Dark: blue-grey page #E8EDF4, white cards, navy text #14213D, soft navy `OUTLINE` #6F82A3 for outlined buttons and Back; plus the bar, which keeps its own colours) and the WCAG contrast check. Unit tested. |
 | `BarHeight` | Pure: which height source wins, and the 48dp floor. Unit tested. |
 | `NavMode` | Pure: the raw navigation-mode value to 3-button / 2-button / gesture / unknown. Unit tested. |
 | `BarStatus` | Pure: on / off / turned on but not running, and parsing of the enabled-services setting. Unit tested. |

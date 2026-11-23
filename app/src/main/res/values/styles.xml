@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- The family look of the Senior apps: dark text on a warm off-white page.
+    <!-- The family look of the Senior apps: deep navy text on a cool blue-grey page,
+         as in SeniorLauncher's Light.
          The system bars take the page colour with dark icons. Content is kept
          clear of the bars in code (fitsSystemWindows). Colours used in code
          come from Palette; these match its PAGE and GREEN. -->
@@ -15,6 +16,6 @@
 
     <style name="AppTheme" parent="AppTheme.Base" />
 
-    <color name="page">#F4F2ED</color>
+    <color name="page">#E8EDF4</color>
     <color name="green">#2E7D32</color>
 </resources>
