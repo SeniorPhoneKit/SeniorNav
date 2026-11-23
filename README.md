@@ -13,6 +13,10 @@ English and German. The app follows the phone's language.
 
 ## What you see
 
+<p>
+  <img src="docs/screenshots/main.png" width="30%" alt="The helper's screen: the bar is on, the button to accessibility settings, button order and bar colour, with the big Back and Home bar at the bottom">
+</p>
+
 At the bottom of the screen, a dark bar:
 
 - **← Back** on the left: one step back, like the phone's own Back button.
