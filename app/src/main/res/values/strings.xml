@@ -16,11 +16,11 @@
     <string name="status_stuck">✗ The bar is turned on but not running.</string>
 
     <string name="what_it_does">A big bar with Back and Home sits at the bottom of the screen, in every app, over the phone\'s own buttons.</string>
-    <string name="how_to_turn_on">To turn it on: tap the button below, find \"Back &amp; Home\" (often under \"Downloaded apps\"), open it and switch it on. Android then asks for permission; allow it.</string>
+    <string name="how_to_turn_on">Turn on “Back &amp; Home” in accessibility settings.</string>
     <string name="how_to_restart">Android has stopped it. Tap the button below, open \"Back &amp; Home\", switch it off and on again.</string>
     <string name="open_accessibility">Open accessibility settings</string>
     <string name="open_accessibility_off">Turn off in accessibility settings</string>
-    <string name="restricted_hint">If Android says \"Restricted setting\": open App info below, tap ⋮ at the top right, choose \"Allow restricted settings\", then try again. This is needed when the app was not installed from Google Play.</string>
+    <string name="restricted_hint">Android says “Restricted setting”? Allow it in App info first.</string>
     <string name="open_app_info">Open App info</string>
     <string name="locked">Locked from the home screen. Unlock it there to change settings.</string>
 
@@ -43,7 +43,7 @@
     <string name="nav_gesture">This phone uses gesture navigation (swiping).</string>
     <string name="nav_unknown">The navigation mode of this phone could not be read.</string>
     <string name="nav_good">Good: the bar sits exactly over the phone\'s own buttons.</string>
-    <string name="nav_advice">Choose 3-button navigation. Then the bar sits exactly over the phone\'s own buttons and takes their taps. With swiping, a swipe from the bottom edge still goes past the bar. In Settings, search for \"navigation\" if the button below does not open it.</string>
+    <string name="nav_advice">Choose 3-button navigation: then the bar sits exactly over the phone\'s own buttons.</string>
     <string name="open_navigation">Open navigation settings</string>
 
     <string name="status_unlocked">✓ The bar is on, hidden while unlocked. It comes back when the phone is locked.</string>
@@ -114,4 +114,44 @@
     <string name="backup_error_read">The file could not be read. Nothing was changed.</string>
     <string name="backup_error_save">The file could not be saved.</string>
     <string name="backup_no_picker">This phone cannot choose files.</string>
+
+    <!-- The full steps, shown only when the helper taps "How? Show the steps" (Steps).
+         Each step names what to tap in the words Android shows. -->
+    <string name="steps_button">How? Show the steps</string>
+    <string name="steps_a11y_title">Turn on Back &amp; Home</string>
+    <string-array name="steps_a11y">
+        <item>Tap “Open accessibility settings” below.</item>
+        <item>Tap “Back &amp; Home”. It is under “Downloaded apps”.</item>
+        <item>Turn on “Use Back &amp; Home”.</item>
+        <item>Android asks whether to allow full control: tap “Allow”.</item>
+    </string-array>
+    <string-array name="steps_a11y_notes">
+        <item>Samsung: “Back &amp; Home” is under “Installed apps”.</item>
+        <item>The app says “turned on but not running”? Turn “Use Back &amp; Home” off and on again.</item>
+    </string-array>
+    <string-array name="steps_a11y_notes_restricted">
+        <item>Android says “Restricted setting”? Tap “Open App info” below, tap ⋮ at the top right, tap “Allow restricted settings”, then start again at step 1. Needed when the app was not installed from Google Play.</item>
+        <item>Samsung: “Back &amp; Home” is under “Installed apps”.</item>
+        <item>The app says “turned on but not running”? Turn “Use Back &amp; Home” off and on again.</item>
+    </string-array>
+    <string name="steps_nav_title">Switch to 3-button navigation</string>
+    <string-array name="steps_nav">
+        <item>Tap “Open navigation settings” below.</item>
+        <item>Tap “3-button navigation”.</item>
+        <item>Come back here: it says “This phone uses 3-button navigation.”</item>
+    </string-array>
+    <string-array name="steps_nav_notes">
+        <item>Only the Settings list opened? Tap “System”, then “Navigation mode”.</item>
+        <item>Samsung: “Display”, then “Navigation bar”, then “Buttons”.</item>
+    </string-array>
+    <string name="steps_dnd_title">Allow Do Not Disturb access</string>
+    <string-array name="steps_dnd">
+        <item>Tap “Allow Do Not Disturb access” below.</item>
+        <item>Tap “Back &amp; Home” in the list.</item>
+        <item>Turn on “Allow Do Not Disturb”.</item>
+        <item>Tap “Allow”.</item>
+    </string-array>
+    <string-array name="steps_dnd_notes">
+        <item>The list did not open? In Settings: “Apps”, “Special app access”, “Do Not Disturb access”.</item>
+    </string-array>
 </resources>

@@ -114,6 +114,17 @@ public final class MainActivity extends Activity {
                     status == BarStatus.ON ? Palette.Role.BLUE : Palette.Role.GREEN);
             a11y.setOnClickListener(v -> NavSettings.openAccessibility(this));
             content.addView(a11y, Ui.fullWidth(this, 16));
+            if (status != BarStatus.ON) {
+                Steps.Action open = new Steps.Action(R.string.open_accessibility,
+                        () -> NavSettings.openAccessibility(this));
+                content.addView(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                        ? Steps.button(this, R.string.steps_a11y_title, R.array.steps_a11y,
+                                R.array.steps_a11y_notes_restricted, open,
+                                new Steps.Action(R.string.open_app_info, () -> NavSettings.openAppInfo(this)))
+                        : Steps.button(this, R.string.steps_a11y_title, R.array.steps_a11y,
+                                R.array.steps_a11y_notes, open),
+                        Ui.fullWidth(this, 12));
+            }
 
             if (status != BarStatus.ON && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 content.addView(Ui.muted(this, getString(R.string.restricted_hint)),
@@ -390,14 +401,19 @@ public final class MainActivity extends Activity {
         if (ring.low(VolumeGuard.min(am, rs), am.getStreamMaxVolume(rs)) > 0 && !VolumeGuard.policyAccess(this)) {
             content.addView(Ui.text(this, getString(R.string.dnd_hint), Ui.TEXT_BODY), Ui.fullWidth(this, 16));
             Button dnd = Ui.outlined(this, getString(R.string.dnd_open));
-            dnd.setOnClickListener(v -> {
-                try {
-                    startActivity(new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS));
-                } catch (RuntimeException e) {
-                    startActivity(new Intent(Settings.ACTION_SETTINGS));
-                }
-            });
+            dnd.setOnClickListener(v -> openDnd());
             content.addView(dnd, Ui.fullWidth(this, 12));
+            content.addView(Steps.button(this, R.string.steps_dnd_title, R.array.steps_dnd,
+                    R.array.steps_dnd_notes, new Steps.Action(R.string.dnd_open, this::openDnd)),
+                    Ui.fullWidth(this, 12));
+        }
+    }
+
+    private void openDnd() {
+        try {
+            startActivity(new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS));
+        } catch (RuntimeException e) {
+            startActivity(new Intent(Settings.ACTION_SETTINGS));
         }
     }
 
@@ -561,6 +577,9 @@ public final class MainActivity extends Activity {
             Button open = Ui.outlined(this, getString(R.string.open_navigation));
             open.setOnClickListener(v -> NavSettings.openNavigation(this));
             content.addView(open, Ui.fullWidth(this, 12));
+            content.addView(Steps.button(this, R.string.steps_nav_title, R.array.steps_nav,
+                    R.array.steps_nav_notes, new Steps.Action(R.string.open_navigation,
+                            () -> NavSettings.openNavigation(this))), Ui.fullWidth(this, 12));
         }
     }
 }
