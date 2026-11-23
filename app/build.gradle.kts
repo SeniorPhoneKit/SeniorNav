@@ -35,8 +35,8 @@ val releaseStoreFile = keystoreProperties.getProperty("storeFile")
     ?.let { rootProject.file(it) }?.takeIf { it.isFile }
 
 // One place for the version, so the APK name below can never disagree with it.
-val appVersionName = "0.0.3"
-val appVersionCode = 3
+val appVersionName = "0.0.4"
+val appVersionCode = 4
 
 // APKs come out as SeniorNav-<version>-<buildtype>.apk, ready to attach to a
 // GitHub release. An unsigned release build ends in "-unsigned.apk", which is
