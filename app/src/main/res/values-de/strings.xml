@@ -6,7 +6,7 @@
     <string name="bar_back">Zurück</string>
     <string name="bar_home">Start</string>
 
-    <string name="service_description">Zeigt unten auf dem Bildschirm eine große, feste Leiste mit den Tasten Zurück und Start, über den eigenen Navigationstasten des Telefons. Sie ist eine Navigationshilfe für ältere Menschen und Menschen mit kognitiven oder motorischen Einschränkungen, denen die kleinen Systemtasten oder Wischgesten schwerfallen. Sie bemerkt nur, wann Fenster wechseln (um dem Sperrbildschirm Platz zu machen); sie kann nicht lesen, was auf dem Bildschirm steht, und sendet nichts irgendwohin.</string>
+    <string name="service_description">Zeigt unten auf dem Bildschirm eine große, feste Leiste mit den Tasten Zurück und Start, über den eigenen Navigationstasten des Telefons. Sie ist eine Navigationshilfe für ältere Menschen und Menschen mit kognitiven oder motorischen Einschränkungen, denen die kleinen Systemtasten oder Wischgesten schwerfallen. Sie bemerkt nur, wann Fenster wechseln (um dem Sperrbildschirm Platz zu machen) und, wenn die Betreuungsperson es einrichtet, Drücke auf die Lautstärketasten (um mit einem Muster zu sperren und zu entsperren und die Lautstärke im gesperrten Zustand zu begrenzen); alle anderen Tasten ignoriert sie, sie kann nicht lesen, was auf dem Bildschirm steht, und sendet nichts irgendwohin.</string>
 
     <string name="status_on">✓ Die Leiste ist an.</string>
     <string name="status_paused">✗ Die Leiste ist pausiert.</string>
@@ -43,4 +43,52 @@
     <string name="nav_good">Gut: Die Leiste liegt genau über den eigenen Tasten des Telefons.</string>
     <string name="nav_advice">Die Bedienung über 3 Schaltflächen wählen. Dann liegt die Leiste genau über den eigenen Tasten des Telefons und fängt deren Tipps ab. Beim Wischen geht ein Wisch vom unteren Rand weiter an der Leiste vorbei. In den Einstellungen nach „Navigation“ suchen, falls die Taste unten sie nicht öffnet.</string>
     <string name="open_navigation">Navigationseinstellungen öffnen</string>
+
+    <string name="status_unlocked">✓ Die Leiste ist an, ausgeblendet solange entsperrt. Sie kommt zurück, wenn das Telefon gesperrt wird.</string>
+
+    <string name="unlocked_heading">Solange entsperrt</string>
+    <string name="unlocked_explain">Wenn Sie die Startseite mit ihrer PIN (oder dem Muster unten) entsperren, macht die Leiste Platz, damit Sie die eigenen Tasten des Telefons benutzen können. Sie kommt zurück, wenn Sie wieder sperren. Erst, wenn auf der Startseite eine PIN gewählt wurde.</string>
+    <string name="unlocked_hide">Leiste ausblenden, solange entsperrt</string>
+    <string name="unlocked_keep">Leiste zeigen, auch wenn entsperrt</string>
+
+    <string name="pattern_heading">Mit den Lautstärketasten sperren</string>
+    <string name="pattern_explain">Drücken Sie Lauter und Leiser in Ihrem eigenen Muster, um die Startseite und die anderen Senior-Apps zu sperren oder zu entsperren: 4 bis 6 Drücke, Lauter und Leiser gemischt, innerhalb von 3 Sekunden und höchstens 1 Sekunde Abstand. Die Lautstärke wird danach wieder wie vorher. Funktioniert bei eingeschaltetem Bildschirm und eingeschalteter Leiste, nicht während eines Anrufs.</string>
+    <string name="pattern_needs_launcher">Dafür ist die Senior-Startseite (SeniorLauncher) in einer aktuellen Version nötig.</string>
+    <string name="pattern_no_pin_hint">Wählen Sie zuerst auf der Startseite eine PIN (Einstellungen, Sperren); das Muster sperrt mit dieser PIN.</string>
+    <string name="pattern_none">Kein Muster: aus.</string>
+    <string name="pattern_now">Muster: %1$s</string>
+    <string name="pattern_record">Muster aufnehmen</string>
+    <string name="pattern_remove">Muster entfernen</string>
+    <string name="pattern_recording">Drücken Sie jetzt die Lautstärketasten, 4- bis 6-mal, Lauter und Leiser gemischt.</string>
+    <string name="pattern_recorded">Bisher: %1$s</string>
+    <string name="pattern_nothing_yet">Bisher: nichts</string>
+    <string name="pattern_invalid">4 bis 6 Drücke, mindestens einmal Lauter und einmal Leiser.</string>
+    <string name="pattern_save">Muster speichern</string>
+    <string name="pattern_cancel">Abbrechen</string>
+    <string name="pattern_up">Lauter</string>
+    <string name="pattern_down">Leiser</string>
+    <string name="pattern_locked">Gesperrt</string>
+    <string name="pattern_unlocked">Entsperrt</string>
+    <string name="pattern_no_pin">Zuerst auf der Startseite eine PIN wählen</string>
+    <string name="pattern_no_launcher">Senior-Startseite nötig</string>
+
+    <string name="keys_heading">Lautstärketasten, wenn gesperrt</string>
+    <string name="keys_normal">Normal funktionieren</string>
+    <string name="keys_limits">In den Grenzen bleiben</string>
+    <string name="keys_off">Nichts tun</string>
+    <string name="keys_explain">Während das Telefon klingelt oder bei einem Anruf funktionieren die Tasten immer normal. Beide Tasten gedrückt halten ist die Bedienungshilfen-Verknüpfung von Android und bleibt unberührt.</string>
+
+    <string name="limits_heading">Lautstärkegrenzen, wenn gesperrt</string>
+    <string name="limits_explain">Auch wenn die Lautstärke anders geändert wird, zum Beispiel mit dem Schieberegler, wird sie in diese Grenzen zurückgeholt.</string>
+    <string name="limit_ring_min">Klingeltonlautstärke, mindestens: %1$d von %2$d</string>
+    <string name="limit_ring_max">Klingeltonlautstärke, höchstens: %1$d von %2$d</string>
+    <string name="limit_media_min">Medienlautstärke, mindestens: %1$d von %2$d</string>
+    <string name="limit_media_max">Medienlautstärke, höchstens: %1$d von %2$d</string>
+    <string name="limit_alarm_min">Weckerlautstärke, mindestens: %1$d von %2$d</string>
+    <string name="limit_lower">− Leiser</string>
+    <string name="limit_higher">+ Lauter</string>
+    <string name="limit_lower_desc">%1$s: leiser</string>
+    <string name="limit_higher_desc">%1$s: lauter</string>
+    <string name="dnd_hint">Wird das Telefon im gesperrten Zustand lautlos gestellt, lässt sich der Klingelton nur mit dem Zugriff auf „Bitte nicht stören“ wieder einschalten. Erlauben Sie ihn für „Zurück &amp; Start“.</string>
+    <string name="dnd_open">Zugriff auf „Bitte nicht stören“ erlauben</string>
 </resources>

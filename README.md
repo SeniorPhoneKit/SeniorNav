@@ -61,6 +61,39 @@ phone's battery settings.
 When SeniorLauncher is installed and locked, this app hides its settings
 buttons; unlock on the home screen to change them.
 
+## With the home screen's lock (SeniorLauncher)
+
+These settings are on the app's screen while the home screen is unlocked.
+
+- **While unlocked** (default **Hide the bar while unlocked**): once a PIN has
+  been set on the home screen, the bar steps aside while you have unlocked it,
+  so you can use the phone's own buttons; it comes back as soon as the phone
+  is locked again. The app's screen then says **"hidden while unlocked"**. A
+  phone whose home screen was never locked keeps its bar.
+- **Lock with the volume buttons**: tap **Record pattern** and press Volume
+  Up and Down 4 to 6 times, mixing both (▲ ▲ ▼ ▼, for example), then **Save
+  pattern**. Pressing it later, within 3 seconds and with at most 1 second
+  between presses, locks the home screen and the Phone and Alarm apps, or
+  unlocks them. The phone buzzes and says **Locked** or **Unlocked**. The
+  volume moves while you press, as usual, and goes back to where it was once
+  the pattern is complete. It locks with the home screen's PIN, so choose one
+  there first (Settings, Lock). It works while the screen is on, not while the
+  phone rings or during a call. **Remove pattern** switches it off.
+- **Volume buttons while locked**: **Work normally** (default), **Stay within
+  the limits** or **Do nothing**. The pattern still works with each. While the
+  phone rings or during a call the buttons always work normally, and holding
+  both buttons (Android's accessibility shortcut) is not affected.
+- **Volume limits while locked** (with **Stay within the limits**): the
+  lowest and highest ring and media volume, and the lowest alarm volume. A
+  change made another way, for example with the slider, is brought back too.
+  If the phone is switched to vibrate, the ring comes back on when it has a
+  lowest volume; from silent only if you allow **Do Not Disturb access** (the
+  app has a button for it).
+
+Android warns more strongly when the bar is switched on, because the app may
+see key presses: it only looks at Volume Up and Down, and only while one of
+the settings above is in use.
+
 ## Good to know
 
 - In landscape the bar stays at the bottom, also on phones whose own buttons
@@ -82,10 +115,15 @@ the package `app.phueber.seniornav`; extras are text.
 | Broadcast | `app.phueber.seniornav.action.BAR_COLOUR` | `colour` = `dark` or `light` | Dark bar with white icons, or white bar with dark icons |
 | Broadcast | `app.phueber.seniornav.action.BACK` | none | Presses Back (only while the bar's service is on) |
 | Broadcast | `app.phueber.seniornav.action.HOME` | none | Presses Home (only while the bar's service is on) |
+| Broadcast | `app.phueber.seniornav.action.BAR_UNLOCKED` | `hide` = `on` or `off` | Hide the bar while the home screen is unlocked, or keep it |
+| Broadcast | `app.phueber.seniornav.action.VOLUME_KEYS` | `mode` = `normal`, `limits` or `off` | What the volume buttons do while locked |
+| Broadcast | `app.phueber.seniornav.action.VOLUME_LIMIT` | `stream` = `ring`, `media` or `alarm`; `min` and/or `max` = a step (`max` also `top`; none for `alarm`) | Sets a volume limit, in the steps of the phone's slider |
+| Broadcast | `app.phueber.seniornav.action.PATTERN_REMOVE` | none | Removes the volume-button pattern |
 
 While the bar is paused, the app's screen says **"paused by automation"** and
 has a button **Show the bar again**, also while SeniorLauncher is locked. On the
-lock screen the bar is hidden anyway. Other values are ignored.
+lock screen the bar is hidden anyway. Other values are ignored. There is no
+command to unlock or to set a pattern.
 
 `BACK`, `HOME` and `BAR_HIDE` are limited, so that no app can flood them: at
 most one a second and six a minute; more and they are ignored for two minutes.
@@ -100,7 +138,9 @@ mode *Broadcast*, action `app.phueber.seniornav.action.BAR_HIDE`, package
 
 The app has no internet access at all (it does not even ask for it), no
 account, no tracking and no ads. It uses Android's accessibility service only
-to press Back and Home and to notice when the lock screen shows. It never reads what is on the screen.
+to press Back and Home, to notice when the lock screen shows and, if the
+helper sets it up, to see presses of Volume Up and Down. It never reads what
+is on the screen or any other key.
 
 ## Contributing and licence
 
@@ -170,6 +210,45 @@ Telefons zusätzlich erlauben, dass die App im Hintergrund läuft.
 Ist SeniorLauncher installiert und gesperrt, blendet diese App ihre
 Einstellungstasten aus; zum Ändern auf dem Startbildschirm entsperren.
 
+## Mit der Sperre der Startseite (SeniorLauncher)
+
+Diese Einstellungen stehen auf dem Bildschirm der App, solange die Startseite
+entsperrt ist.
+
+- **Solange entsperrt** (Standard **Leiste ausblenden, solange entsperrt**):
+  Sobald auf der Startseite eine PIN gewählt wurde, macht die Leiste Platz,
+  solange Sie entsperrt haben, damit Sie die eigenen Tasten des Telefons
+  benutzen können; sie kommt zurück, sobald wieder gesperrt ist. Der
+  Bildschirm der App sagt dann **„ausgeblendet solange entsperrt“**. Ein
+  Telefon, dessen Startseite nie gesperrt wurde, behält seine Leiste.
+- **Mit den Lautstärketasten sperren**: **Muster aufnehmen** antippen und
+  4- bis 6-mal Lauter und Leiser drücken, beide gemischt (zum Beispiel ▲ ▲ ▼ ▼),
+  dann **Muster speichern**. Wird es später gedrückt, innerhalb von
+  3 Sekunden und mit höchstens 1 Sekunde zwischen den Drücken, sperrt es die
+  Startseite und die Telefon- und Wecker-App, oder entsperrt sie. Das Telefon
+  vibriert kurz und zeigt **Gesperrt** oder **Entsperrt**. Die Lautstärke
+  ändert sich beim Drücken wie gewohnt und springt zurück, sobald das Muster
+  vollständig ist. Es sperrt mit der PIN der Startseite; wählen Sie dort also
+  zuerst eine (Einstellungen, Sperren). Es funktioniert bei eingeschaltetem
+  Bildschirm, nicht während das Telefon klingelt oder bei einem Anruf.
+  **Muster entfernen** schaltet es aus.
+- **Lautstärketasten, wenn gesperrt**: **Normal funktionieren** (Standard),
+  **In den Grenzen bleiben** oder **Nichts tun**. Das Muster funktioniert bei
+  allen dreien. Während das Telefon klingelt oder bei einem Anruf funktionieren
+  die Tasten immer normal, und beide Tasten gedrückt halten (die
+  Bedienungshilfen-Verknüpfung von Android) bleibt unberührt.
+- **Lautstärkegrenzen, wenn gesperrt** (mit **In den Grenzen bleiben**):
+  niedrigste und höchste Klingelton- und Medienlautstärke und die niedrigste
+  Weckerlautstärke. Eine Änderung auf anderem Weg, zum Beispiel mit dem
+  Schieberegler, wird ebenfalls zurückgeholt. Wird das Telefon auf Vibration
+  gestellt, kommt der Klingelton zurück, wenn er eine Mindestlautstärke hat;
+  aus „Lautlos“ nur, wenn Sie den **Zugriff auf „Bitte nicht stören“**
+  erlauben (die App hat eine Taste dafür).
+
+Android warnt beim Einschalten der Leiste deutlicher, weil die App
+Tastendrücke sehen darf: Sie beachtet nur Lauter und Leiser, und nur, solange
+eine der Einstellungen oben genutzt wird.
+
 ## Gut zu wissen
 
 - Im Querformat bleibt die Leiste unten, auch auf Telefonen, deren eigene Tasten
@@ -192,11 +271,16 @@ Text.
 | Broadcast | `app.phueber.seniornav.action.BAR_COLOUR` | `colour` = `dark` oder `light` (auch `dunkel`/`hell`) | Dunkle Leiste mit weißen Symbolen oder helle mit dunklen |
 | Broadcast | `app.phueber.seniornav.action.BACK` | keine | Drückt Zurück (nur, wenn der Dienst der Leiste an ist) |
 | Broadcast | `app.phueber.seniornav.action.HOME` | keine | Drückt Start (nur, wenn der Dienst der Leiste an ist) |
+| Broadcast | `app.phueber.seniornav.action.BAR_UNLOCKED` | `hide` = `on` oder `off` (auch `an`/`aus`) | Leiste ausblenden, solange die Startseite entsperrt ist, oder zeigen |
+| Broadcast | `app.phueber.seniornav.action.VOLUME_KEYS` | `mode` = `normal`, `limits` oder `off` (auch `grenzen`/`aus`) | Was die Lautstärketasten tun, wenn gesperrt |
+| Broadcast | `app.phueber.seniornav.action.VOLUME_LIMIT` | `stream` = `ring`, `media` oder `alarm` (auch `klingelton`/`medien`/`wecker`); `min` und/oder `max` = eine Stufe (`max` auch `top`/`oben`; nicht bei `alarm`) | Setzt eine Lautstärkegrenze, in den Stufen des Schiebereglers |
+| Broadcast | `app.phueber.seniornav.action.PATTERN_REMOVE` | keine | Entfernt das Muster der Lautstärketasten |
 
 Solange die Leiste pausiert ist, sagt der Bildschirm der App **„durch
 Automatisierung pausiert“** und hat eine Taste **Leiste wieder zeigen**, auch
 wenn SeniorLauncher gesperrt ist. Auf dem Sperrbildschirm ist die Leiste ohnehin
-ausgeblendet. Andere Werte werden ignoriert.
+ausgeblendet. Andere Werte werden ignoriert. Einen Befehl zum Entsperren
+oder zum Setzen eines Musters gibt es nicht.
 
 `BACK`, `HOME` und `BAR_HIDE` sind begrenzt, damit keine App sie massenhaft
 senden kann: höchstens einer pro Sekunde und sechs pro Minute; darüber hinaus
@@ -212,5 +296,7 @@ Sendeart *Broadcast*, Aktion `app.phueber.seniornav.action.BAR_HIDE`, Paket
 
 Die App hat keinerlei Internetzugang (sie fragt nicht einmal danach), kein
 Konto, kein Tracking und keine Werbung. Sie nutzt den Bedienungshilfe-Dienst von
-Android nur, um Zurück und Start zu drücken und um zu bemerken, wann der
-Sperrbildschirm gezeigt wird. Sie liest nie, was auf dem Bildschirm steht.
+Android nur, um Zurück und Start zu drücken, um zu bemerken, wann der
+Sperrbildschirm gezeigt wird, und, wenn die helfende Person es einrichtet, um
+Drücke auf Lauter und Leiser zu sehen. Sie liest nie, was auf dem Bildschirm
+steht, und keine andere Taste.
