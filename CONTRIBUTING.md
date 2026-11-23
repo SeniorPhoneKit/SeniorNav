@@ -13,8 +13,10 @@ together is in [ARCHITECTURE.md](ARCHITECTURE.md).
   AndroidX, Kotlin, Compose or third-party libraries. `testImplementation` of
   JUnit is the only exception.
 - **Read nothing.** The accessibility service only looks at which windows are
-  open. It never reads window content, text or keys, and the app has no internet
-  access. This is what the Play accessibility policy and the users' trust rest on.
+  open and, while the helper uses the lock pattern or limits the volume
+  buttons, at Volume Up and Down. It never reads window content, text or any
+  other key, and the app has no internet access. This is what the Play
+  accessibility policy and the users' trust rest on.
 - **English and German.** Every user-visible string goes in both
   `res/values/strings.xml` and `res/values-de/strings.xml`.
 - **Big and plain.** High contrast, state shown in words as well as by colour.
@@ -31,16 +33,27 @@ gitignored `local.properties` containing `sdk.dir=/path/to/Android/Sdk`.
 
 Unit tests carry the weight; device testing is by hand for now.
 
-    ./gradlew test        # JVM unit tests (BarRules, BarHeight, NavMode, BarStatus, Palette)
+    ./gradlew test        # JVM unit tests (BarHeight, NavMode, BarStatus, Palette, VolumePattern, VolumeLimits, VolumeKeys, LockState, ...)
     ./gradlew lint
 
 Logic that can be tested without a device belongs in a pure Java class (no
-`android.*` imports) with a JVM test, like `BarRules`.
+`android.*` imports) with a JVM test, like `VolumePattern`.
 
 On a device: install, open the app, turn the service on, then check in a few
 apps (including WhatsApp and a full-screen video) that Back and Home work, that
 the bar steps aside for the keyboard and the lock screen, and that it follows a
 rotation.
+
+The volume buttons on the emulator: `adb shell input keyevent` is injected
+past the accessibility key filter and never reaches `onKeyEvent`. Real key
+events do: as root, write them to the emulator's keyboard device, e.g.
+`adb shell 'sendevent /dev/input/event1 1 115 1; sendevent /dev/input/event1 0 0 0; sendevent /dev/input/event1 1 115 0; sendevent /dev/input/event1 0 0 0'`
+(115 Volume Up, 114 Volume Down; the device is the "AT Translated Set 2
+keyboard" in `getevent -lp`). Volumes: `dumpsys audio`; set one from
+"elsewhere" with `cmd media_session volume --stream 3 --set 9`, the ringer with
+`cmd audio set-ringer-mode SILENT`; a ringing call with `adb emu gsm call
+0123456`. The first press while the volume panel is hidden only shows the
+panel on Android 15; it changes nothing.
 
 ## Release signing
 

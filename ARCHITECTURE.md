@@ -3,7 +3,11 @@
 Package `app.phueber.seniornav`. A fixed bar with two big buttons, **Back** and
 **Home**, drawn at the bottom of the screen over the system navigation bar, in
 every app. It cannot be moved, resized or swiped away. The app's one screen is
-for the helper: it says whether the bar is on and how to switch it on.
+for the helper: it says whether the bar is on and how to switch it on. With
+SeniorLauncher's shared lock it also hides the bar while the helper has
+unlocked, and lets the helper lock and unlock with a pattern of volume-button
+presses and limit what the volume buttons do while locked (see Volume buttons
+and the shared lock).
 
 ## Design
 
@@ -30,7 +34,9 @@ for the helper: it says whether the bar is on and how to switch it on.
   buttons and PIN pad must work, while the screen is off
   (`PowerManager.isInteractive`, the always-on display) or a screensaver runs
   (`ACTION_DREAMING_STARTED`/`STOPPED`, e.g. the charging clock; the screen
-  counts as on), and while an automation app has paused it (see Automation).
+  counts as on), while an automation app has paused it (see Automation), and
+  while the helper has unlocked SeniorLauncher's lock (see Hidden while
+  unlocked).
   The keyguard check alone missed the last two: when they start the lock may
   not be engaged yet, and no event re-checks until the screen wakes.
   It stays over the keyboard: in 3-button mode
@@ -47,6 +53,16 @@ for the helper: it says whether the bar is on and how to switch it on.
   `canRetrieveWindowContent` is off: the service cannot read window content or
   the window list. Bursts of events are folded into one check 150 ms after the
   last.
+- **Hardware keys, Volume only.** The config also sets
+  `canRequestFilterKeyEvents` and `flagRequestFilterKeyEvents`: the service sees
+  every hardware key press before apps do, and may swallow it. That is what the
+  volume pattern and the locked volume behaviour need; `onKeyEvent` hands
+  Volume Up/Down to `VolumeGuard` and returns false (untouched) for every other
+  key. The flag is cleared at runtime (`setServiceInfo`) while no pattern is set
+  and the buttons work normally, so then the service sees no key at all. The
+  capability itself is declared statically, so Android's dialog when the
+  helper turns the service on now warns that the app can observe what is typed;
+  the service description says it only notices the volume buttons.
 - **Reconfiguration.** On rotation, Display size, font or language change the
   window is rebuilt with the new height and labels, again at the bottom.
 
@@ -54,18 +70,23 @@ for the helper: it says whether the bar is on and how to switch it on.
 
 | Class | Role |
 |---|---|
-| `NavBarService` | The accessibility service. Attaches the bar's window, hides and shows it, presses Back/Home. Listens to window events and screen on/off/unlock and screensaver start/stop broadcasts (to hide over the lock screen, the screen-off display and a screensaver) and to the settings. |
+| `NavBarService` | The accessibility service. Attaches the bar's window, hides and shows it, presses Back/Home. Listens to window events and screen on/off/unlock and screensaver start/stop broadcasts (to hide over the lock screen, the screen-off display and a screensaver), to the settings, to SeniorLauncher's lock uri and package changes (to hide while unlocked), and passes volume key events to `VolumeGuard`. Switches key filtering on only while needed. |
+| `VolumeGuard` | The volume buttons: spots the pattern, undoes its volume changes, locks/unlocks through `LauncherLock`, buzzes and toasts; passes, limits or swallows presses while locked; watches volume and ringer-mode changes and brings them back within the limits. Thin glue over the pure classes below. |
+| `VolumePattern` | Pure: what a valid pattern is (4-6 presses, both directions), the arrows shown, and the matcher (timing, stray presses, reset). Unit tested. |
+| `VolumeKeys` | Pure: the locked modes (normal / limits / off), the decision for one press (pass / limit / swallow, always pass during a call), when limits are enforced and when keys are needed at all. Unit tested. |
+| `VolumeLimits` | Pure: a stream's lowest and highest allowed step, clamping, whether a step stays in range, and moving one limit without crossing the other. Unit tested. |
+| `LockState` | Pure: SeniorLauncher's lock as read (answered, new enough, locked, PIN set) and whether the bar steps aside while unlocked. Unit tested. |
 | `Bar` | The bar's view (Back left, Home right, or swapped by the helper's choice; always the screen's left/right, also in RTL; each half the width, icon plus word; dark bar with white, or light bar with near-black and a grey top line) and its window parameters; reads the system navigation bar height. |
-| `MainActivity` | The helper's screen: status in words and colour, "paused by automation" with Show the bar again, the button order and the bar colour (hidden while locked), the button to Accessibility settings, the "Allow restricted settings" hint (Android 13+), the navigation mode and the advice to use 3-button navigation. Back at the bottom goes home in one tap (hidden while the bar is on, see `NavBar`). |
-| `NavStore` | The settings, `paused`, `back_right` and `light_bar`, in one SharedPreferences file that the service, the screen and the receiver share. |
-| `AutomationReceiver` | Exported; BAR_HIDE/BAR_SHOW/BAR_SIDES/BAR_COLOUR write `NavStore`, BACK/HOME go to `NavBarService.perform`. BACK/HOME and BAR_HIDE are rate-limited (`AutomationLimit`). |
+| `MainActivity` | The helper's screen: status in words and colour ("hidden while unlocked" too), "paused by automation" with Show the bar again, the button order, the bar colour, hide while unlocked, the volume pattern (record, show, remove), the locked volume-button mode and the limits with the Do Not Disturb hint (all hidden while locked), the button to Accessibility settings, the "Allow restricted settings" hint (Android 13+), the navigation mode and the advice to use 3-button navigation. Back at the bottom goes home in one tap (hidden while the bar is on, see `NavBar`). |
+| `NavStore` | The settings, `paused`, `back_right`, `light_bar`, `hide_unlocked`, `pattern`, `volume_keys` and the limits (`ring_min`/`ring_max`, `media_min`/`media_max`, `alarm_min`), in one SharedPreferences file that the service, the screen and the receiver share. |
+| `AutomationReceiver` | Exported; BAR_HIDE/BAR_SHOW/BAR_SIDES/BAR_COLOUR/BAR_UNLOCKED/VOLUME_KEYS/VOLUME_LIMIT/PATTERN_REMOVE write `NavStore`, BACK/HOME go to `NavBarService.perform`. BACK/HOME and BAR_HIDE are rate-limited (`AutomationLimit`). |
 | `AutomationLimit` | Pure: at most one automation action a second, six a minute, then a two-minute cooldown. Unit tested. |
-| `Automation` | Pure: action names, which command an action is, the `back` extra (`left`/`right`), the `colour` extra (`dark`/`light`). Unit tested. |
+| `Automation` | Pure: action names, which command an action is, the `back` extra (`left`/`right`), the `colour` extra (`dark`/`light`), on/off, the `stream` extra and the volume steps. Unit tested. |
 | `NavSettings` | Reads the enabled-services setting and the navigation mode; opens Accessibility settings, App info and System navigation (no public action exists, so known AOSP screens are tried, then general Settings). |
-| `LauncherLock` | Reads SeniorLauncher's shared lock (`content://app.phueber.seniorlauncher.lock/state`, `locked` 0/1). Locked, the main screen hides its settings buttons. Read-only; unlocking happens on the home screen. |
+| `LauncherLock` | Reads SeniorLauncher's shared lock (`content://app.phueber.seniorlauncher.lock/state`, `locked` 0/1, `has_pin` 0/1 in newer versions) as a `LockState`. Locked, the main screen hides its settings buttons. Locks and unlocks for the pattern (`call` "nav_lock"/"nav_unlock"); there is no other way to change the lock from here. |
 | `Ui` | Shared buttons and the screen frame, as in the other Senior apps. |
-| `NavBar` | Whether the bar is on screen (`NavBarService.barVisible`, the rule `BarProvider` publishes). While it is, the pinned Back button is hidden, since the bar already has Back and Home; shown again while it is paused or not running. Re-checked whenever a screen gets focus and on every `BarProvider` change while attached. |
-| `BarProvider` | Exported, read-only: tells the other Senior apps whether the bar is on screen, so their Back button follows it (see Bar state for other apps). |
+| `NavBar` | Whether the senior can rely on the bar (`NavBarService.barVisible`, the rule `BarProvider` publishes; also true while it is hidden because the helper unlocked). While it is, the pinned Back button is hidden, since the bar already has Back and Home; shown again while it is paused or not running. Re-checked whenever a screen gets focus and on every `BarProvider` change while attached. |
+| `BarProvider` | Exported, read-only: tells the other Senior apps whether they need no Back of their own (see Bar state for other apps). |
 | `AttachRetry` | Pure: the growing wait before attaching a refused window again. Unit tested. |
 | `Palette` | Pure: the colours by role (the family's Light look plus the bar) and the WCAG contrast check. Unit tested. |
 | `BarHeight` | Pure: which height source wins, and the 48dp floor. Unit tested. |
@@ -78,15 +99,27 @@ Pure classes have JVM tests in `app/src/test`; Android-facing classes have none.
 
 Automation apps (Trigly, Tasker, ...) send explicit broadcasts to the exported
 `AutomationReceiver`: `BAR_HIDE`, `BAR_SHOW`, `BAR_SIDES` (extra `back` =
-`left`/`right`), `BAR_COLOUR` (extra `colour` = `dark`/`light`), `BACK`, `HOME`, all under `app.phueber.seniornav.action.`.
+`left`/`right`), `BAR_COLOUR` (extra `colour` = `dark`/`light`), `BACK`, `HOME`,
+`BAR_UNLOCKED` (extra `hide` = `on`/`off`), `VOLUME_KEYS` (extra `mode` =
+`normal`/`limits`/`off`), `VOLUME_LIMIT` (extra `stream` =
+`ring`/`media`/`alarm`, `min` and/or `max` in the stream's steps, `max` also
+`top`; the alarm has no max), `PATTERN_REMOVE`, all under
+`app.phueber.seniornav.action.`. There is deliberately no command that unlocks,
+and none that sets a pattern (which would be an unlock path any app could
+plant). The new settings commands are not rate-limited, like `BAR_SIDES`:
+none of them can keep anyone out of Settings. A hostile app could set
+annoying limits (ring volume capped low while locked), but any app can set
+the volume itself anyway.
 
 - **Broadcasts**, because they need nothing from the sender (no foreground, no
   overlay permission) and no screen has to appear. Extras are strings, because
   that is all Trigly can send; anything malformed is logged and ignored.
 - **Settings through `NavStore`, one signal.** The receiver only writes
   SharedPreferences. The service registers an `OnSharedPreferenceChangeListener`
-  while connected: `paused` triggers `refresh()` (hidden = screen off OR
-  screensaver OR lock screen OR paused), `back_right` and `light_bar` rebuild the window. The main screen listens the same
+  while connected: `paused` and `hide_unlocked` trigger `refresh()` (hidden = screen off OR
+  screensaver OR lock screen OR paused OR hidden while unlocked), `back_right`
+  and `light_bar` rebuild the window, `pattern` and `volume_keys` switch key
+  filtering, `volume_keys` and the limits re-apply the limits. The main screen listens the same
   way while resumed. All three run in one process, so they share one
   SharedPreferences instance and `apply()` notifies at once. Being on disk,
   `paused` survives a service or phone restart; it ends only with BAR_SHOW or
@@ -128,16 +161,22 @@ running" and tells the helper to switch it off and on again. The screen
 rebuilds on every resume, so it shows the result of what the helper just did in
 Settings, and while open on every change of the settings, of SeniorLauncher's
 lock (a `ContentObserver` on its lock uri) and of the bar's state (on
-`BarProvider`'s uri). The lock query stays on the main thread: it is one row
+`BarProvider`'s uri). While the bar is hidden because the helper unlocked, the
+status says so in words ("on, hidden while unlocked"), in green: nothing is
+wrong. The lock query stays on the main thread: it is one row
 from a local provider, and an asynchronous read would show the unlocked
 buttons for a moment.
 
 ## Bar state for other apps
 
 `BarProvider` answers `content://app.phueber.seniornav.bar/state` with one row,
-column `visible`: 1 while the service runs, its window is attached and
+column `visible`. Despite the name it means "the senior does not need the
+apps' own Back": 1 while the service runs, its window is attached and
 automation has not paused it, else 0 (the lock screen does not count: no app's
-screen shows there). Every change of these notifies that uri (attach, detach,
+screen shows there). It stays 1 while the bar is hidden because the helper
+unlocked: the helper then uses the phone's own buttons, which the hidden bar
+no longer covers, and the apps' Back would only clutter the screen (decided by
+the owner). The column keeps its name, so the sibling apps need no change. Every change of these notifies that uri (attach, detach,
 connect, stop, `NavStore.setPaused`). SeniorLauncher, SeniorPhone and
 SeniorAlert hide their pinned Back while it is 1 and watch the uri while their
 Back is attached, so a pause by automation brings their Back back at once;
@@ -145,12 +184,92 @@ without SeniorNav (or an older one) they fall back to the enabled-services
 list. insert/update/delete throw. No permission, like SeniorLauncher's lock
 provider: the state is visible on screen anyway.
 
+## Hidden while unlocked
+
+SeniorLauncher's lock is the helper's switch between "the senior's phone" and
+"the helper is working on it". While the lock is in use (SeniorLauncher has a
+PIN, `has_pin` 1) and open, the bar steps aside like on the lock screen
+(invisible and `FLAG_NOT_TOUCHABLE`), so the helper uses the phone's own
+buttons; locking (PIN screen, pattern, automation) brings it back at once.
+`NavBarService` caches the lock as a `LockState`, re-read on every change of
+the lock uri (a `ContentObserver`), on screen-on, and when SeniorLauncher is
+installed, updated, removed or its data cleared (those do not notify the uri;
+without this a bar hidden "while unlocked" would stay hidden after
+SeniorLauncher is gone). Without SeniorLauncher, with an older one (no
+`has_pin` column) or before a PIN was ever set, nothing changes: a phone that
+never uses the lock keeps its bar. A helper setting, `hide_unlocked`, default
+on; automation `BAR_UNLOCKED`.
+
+## Volume buttons and the shared lock
+
+All of it is set up by the helper on the main screen, hidden while locked, and
+off by default. Only SeniorLauncher's lock is involved: SeniorNav has no lock
+of its own.
+
+- **The pattern** is 4 to 6 presses of Volume Up/Down, stored as `U`/`D`. It
+  must contain both directions: four quick Volume Up presses are what a senior
+  does to make something louder. Timing (`VolumePattern`): at most 1 s between
+  two presses and 3 s from the first to the last; a slower press starts over,
+  and presses that cannot start the pattern are dropped from the front, so a
+  stray press before it does not spoil it. Recorded on the main screen: the
+  activity takes the presses itself (`onKeyDown`, no volume change) while
+  `VolumeGuard.recording` keeps the service from matching the old pattern.
+- **A match toggles the lock** through SeniorLauncher's provider:
+  `call("nav_lock")` (locks with the stored PIN) or `call("nav_unlock")`
+  (no PIN). SeniorLauncher answers only the calling package
+  `app.phueber.seniornav` and refuses to lock until a PIN was set once
+  (`no_pin`); the main screen says "Set a PIN on the home screen first", and a
+  pattern then shows that as a toast. Without SeniorLauncher (or an older one)
+  the section says it needs it. Feedback: a 150 ms buzz and a toast
+  "Locked"/"Unlocked".
+- **The buttons never feel sluggish.** Pattern presses go to the system at
+  once, so the volume moves as usual. Before every press `VolumeGuard` notes
+  every stream's volume and the ringer mode; on a match the completing press
+  is swallowed and everything is put back to what it was before the
+  pattern's first press (and once more 400 ms later, in case the system
+  applied an earlier press late). Presses that do not complete a pattern stay
+  ordinary presses.
+- **Locked, the buttons** work normally (default), stay within the limits, or
+  do nothing (swallowed; the pattern still works). The mode applies only
+  while locked; unlocked everything is normal. A press and its release always
+  go the same way; auto-repeat of a held key follows its first press.
+- **Volume limits** (only in "Stay within the limits", while locked): lowest
+  and highest step for ring and media, lowest for the alarm, in the stream's
+  own steps (stored absolute, clamped to what the phone has; "highest" at the
+  top is stored as "no maximum"). A press is let through only if the step
+  stays in range. Android does not say which stream a press will change: with
+  music playing it is media, otherwise media or ring depending on the phone,
+  so the press is swallowed (the volume panel is shown unchanged) only when it
+  would leave the range on every candidate. Every volume change, from the
+  panel's slider, Settings or another app, is watched
+  (`android.media.VOLUME_CHANGED_ACTION`, not in the SDK but sent by every
+  version, and `RINGER_MODE_CHANGED_ACTION`) and brought back into range, as
+  is everything at the moment the lock comes on.
+- **Ringer mode.** With a ring minimum above 0, vibrate is switched back to
+  normal (allowed without permission); silent only with Do Not Disturb
+  access (switching out of silent counts as a Do Not Disturb change), which
+  the main screen asks the helper for with a button to the settings. Without
+  it silent stays silent. While the ringer is not normal the ring volume is
+  left alone (raising it there would fight the ringer mode).
+- **Calls.** While the phone rings or a call is on (`AudioManager.getMode()`
+  is not `MODE_NORMAL`: ringtone, in call, in communication such as WhatsApp,
+  call screening; no permission needed) presses pass untouched and do not
+  count toward the pattern. While it rings Android takes the press itself to
+  silence the ringer before the service sees it (checked on the emulator).
+- **Both keys held** is Android's accessibility shortcut, detected by the
+  window manager before the service sees the keys; a press while the other
+  key is held resets the pattern and is otherwise handled as usual.
+
 ## Permissions
 
-None. An accessibility overlay needs no permission beyond the helper enabling
-the service; the service is bound only by the system
-(`BIND_ACCESSIBILITY_SERVICE`). No internet. The `<queries>` entry only makes
-SeniorLauncher's lock provider visible. `BarProvider` is exported without a
+An accessibility overlay needs no permission beyond the helper enabling the
+service; the service is bound only by the system (`BIND_ACCESSIBILITY_SERVICE`).
+No internet. Two normal permissions: `VIBRATE` (the buzz when the pattern locks
+or unlocks) and `ACCESS_NOTIFICATION_POLICY`, which only lists the app under
+Do Not Disturb access, so the helper can grant it for the ring minimum (see
+Volume buttons and the shared lock); the helper grants it in Settings, never
+automatically. The `<queries>` entry only makes
+SeniorLauncher's lock provider (and with it its package broadcasts) visible. `BarProvider` is exported without a
 permission (see Bar state for other apps).
 
 ## Known limits
@@ -192,5 +311,21 @@ permission (see Bar state for other apps).
   non-public action left open could be claimed by any app with a fake settings
   screen), then falls back to general Settings, where the helper searches for
   "navigation".
-- **Not device-tested yet.** Built and unit tested only; the overlay behaviour
-  (layering, insets, keyboard, keyguard) still needs a run on real phones.
+- **Volume keys only while the screen is on.** With the screen off Android
+  handles the volume keys before accessibility services see them (checked on
+  the emulator): no pattern, no limits for presses, no "Do nothing". Changes
+  made that way are still brought back within the limits by the watcher.
+- **Not enforceable.** Do Not Disturb itself; the call (voice) volume; volume
+  that an app sets for its own playback; notification and system volume
+  (they follow the ring on most phones); the ringer coming out of silent
+  without Do Not Disturb access. A press that slips through when Android
+  picks a stream other than the one checked is corrected afterwards, so the
+  panel may show the out-of-range step for a moment.
+- **Injected keys.** `adb shell input keyevent` bypasses the accessibility key
+  filter, so neither the pattern nor the modes react to it; real hardware
+  presses do (see CONTRIBUTING.md).
+- **Not device-tested yet.** Built and unit tested, and the volume buttons,
+  limits and hiding while unlocked tried on the Android 15 emulator; the
+  overlay behaviour (layering, insets, keyboard, keyguard) and the volume
+  keys of real phones (OEM volume panels, which stream a press changes) still
+  need a run on real phones.

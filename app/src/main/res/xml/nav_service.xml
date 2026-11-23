@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Only window changes (to re-check the lock screen), no content events and no
-     access to window content. isAccessibilityTool: the bar is a navigation aid
-     for people who cannot use the small system buttons or gestures. -->
+<!-- Window changes (to re-check the lock screen) and the volume buttons, no
+     content events and no access to window content. canRequestFilterKeyEvents
+     lets the service see hardware key presses before apps do; it handles Volume
+     Up and Down only (the helper's lock pattern, and what the buttons may do
+     while SeniorLauncher is locked) and passes every other key on untouched.
+     The flag below is switched off at runtime while neither is in use
+     (NavBarService.updateKeyFilter). Android warns the helper more strongly
+     when turning the service on because of it.
+     isAccessibilityTool: the bar is a navigation aid for people who cannot
+     use the small system buttons or gestures. -->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
     android:accessibilityEventTypes="typeWindowsChanged|typeWindowStateChanged"
     android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagRequestFilterKeyEvents"
+    android:canRequestFilterKeyEvents="true"
     android:canRetrieveWindowContent="false"
     android:description="@string/service_description"
     android:isAccessibilityTool="true"

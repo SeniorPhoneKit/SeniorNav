@@ -4,13 +4,16 @@ import android.accessibilityservice.AccessibilityService;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.os.SystemClock;
 import android.util.Log;
 
 /**
  * Commands from automation apps (Trigly, Tasker, ...), sent as explicit
  * broadcasts: pause and show the bar, choose the button sides, press Back or
- * Home. Settings go to {@link NavStore}, which the running service listens to;
+ * Home, hide the bar while unlocked or not, what the volume buttons do while
+ * locked, the volume limits, remove the lock pattern. There is no command
+ * that unlocks or sets a pattern. Settings go to {@link NavStore}, which the running service listens to;
  * Back and Home need the running service and are dropped without it.
  *
  * Open to any sender by decision (Trigly and Tasker must work without setup),
@@ -69,7 +72,50 @@ public final class AutomationReceiver extends BroadcastReceiver {
             case HOME:
                 press(AccessibilityService.GLOBAL_ACTION_HOME);
                 break;
+            case BAR_UNLOCKED:
+                Boolean hide = Automation.onOff(intent.getStringExtra(Automation.EXTRA_HIDE));
+                if (hide == null) {
+                    Log.w(TAG, "BAR_UNLOCKED needs extra hide=on or hide=off");
+                } else {
+                    NavStore.setHideUnlocked(ctx, hide);
+                }
+                break;
+            case VOLUME_KEYS:
+                VolumeKeys.Mode mode = VolumeKeys.parse(intent.getStringExtra(Automation.EXTRA_MODE));
+                if (mode == null) {
+                    Log.w(TAG, "VOLUME_KEYS needs extra mode=normal, limits or off");
+                } else {
+                    NavStore.setVolumeKeys(ctx, mode);
+                }
+                break;
+            case VOLUME_LIMIT:
+                volumeLimit(ctx, intent);
+                break;
+            case PATTERN_REMOVE:
+                NavStore.setPattern(ctx, null);
+                break;
         }
+    }
+
+    /** Sets the min and/or max sent, in the stream's steps, kept within what the phone has. */
+    private static void volumeLimit(Context ctx, Intent intent) {
+        VolumeLimits.Stream s = Automation.stream(intent.getStringExtra(Automation.EXTRA_STREAM));
+        int min = Automation.step(intent.getStringExtra(Automation.EXTRA_MIN), false);
+        int max = Automation.step(intent.getStringExtra(Automation.EXTRA_MAX), true);
+        if (s == null || min == Automation.BAD || max == Automation.BAD
+                || (min == Automation.ABSENT && max == Automation.ABSENT)
+                || (!s.hasMax && max != Automation.ABSENT)) {
+            Log.w(TAG, "VOLUME_LIMIT needs stream=ring, media or alarm and min and/or max (not for alarm)");
+            return;
+        }
+        AudioManager am = (AudioManager) ctx.getSystemService(Context.AUDIO_SERVICE);
+        if (am == null) return;
+        int stream = VolumeGuard.stream(s);
+        int lo = VolumeGuard.min(am, stream), hi = am.getStreamMaxVolume(stream);
+        VolumeLimits l = NavStore.limits(ctx, s);
+        if (min != Automation.ABSENT) l = l.withMin(min, lo, hi);
+        if (max != Automation.ABSENT) l = l.withMax(max == VolumeLimits.NO_MAX ? hi : max, lo, hi);
+        NavStore.setLimits(ctx, s, l);
     }
 
     private static void press(int action) {

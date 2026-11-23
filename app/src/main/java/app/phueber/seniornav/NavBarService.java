@@ -1,6 +1,7 @@
 package app.phueber.seniornav;
 
 import android.accessibilityservice.AccessibilityService;
+import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.SuppressLint;
 import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
@@ -9,11 +10,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.database.ContentObserver;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.os.SystemClock;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -25,10 +28,14 @@ import android.widget.FrameLayout;
  * to press Back for another app (performGlobalAction) and to draw above the
  * system navigation bar (TYPE_ACCESSIBILITY_OVERLAY).
  *
- * It listens only to window changes (no content, no text, no key events) and
- * cannot read window content. The bar is hidden over the lock screen, whose
- * own buttons and PIN pad must work, and while an automation app has paused
- * it (NavStore.paused, BAR_HIDE). It stays over the keyboard,
+ * It listens to window changes and to the volume buttons (no content, no
+ * text, no other keys) and cannot read window content. The volume buttons go
+ * to VolumeGuard: the helper's pattern that locks and unlocks SeniorLauncher's
+ * shared lock, and what the buttons may do while locked; key filtering is
+ * switched on only while one of these is in use. The bar is hidden over the
+ * lock screen, whose own buttons and PIN pad must work, while an automation
+ * app has paused it (NavStore.paused, BAR_HIDE), and while the helper has
+ * unlocked SeniorLauncher's lock (NavStore.hideUnlocked). It stays over the keyboard,
  * where it covers only the system bar below the keys (Back then closes the
  * keyboard, as the system button does).
  *
@@ -51,8 +58,11 @@ public final class NavBarService extends AccessibilityService {
     }
 
     /**
-     * Whether the bar is on screen for apps to rely on: running, its window
-     * attached, not paused by automation. Published by BarProvider.
+     * Whether the senior can rely on the bar, so apps need no Back of their
+     * own: running, its window attached, not paused by automation. Also true
+     * while the bar steps aside because the helper unlocked: the helper then
+     * uses the phone's own buttons, and the apps' Back would only be in the
+     * way. Published by BarProvider.
      */
     static boolean barVisible(Context c) {
         return running && windowAttached && !NavStore.paused(c);
@@ -86,6 +96,16 @@ public final class NavBarService extends AccessibilityService {
     private boolean visible;
     /** A screensaver (dream) is running, e.g. the charging clock. */
     private boolean dreaming;
+    /** SeniorLauncher's lock, re-read on every change of its uri. */
+    private LockState lock = LockState.NONE;
+    private VolumeGuard volume;
+
+    /** SeniorLauncher locked or unlocked: show or hide the bar, apply the limits. */
+    private final ContentObserver lockChanges = new ContentObserver(handler) {
+        @Override public void onChange(boolean selfChange) {
+            readLock();
+        }
+    };
 
     /** Settings changed (by the screen or by automation): show them at once. */
     private final SharedPreferences.OnSharedPreferenceChangeListener settings = (p, key) -> {
@@ -93,6 +113,12 @@ public final class NavBarService extends AccessibilityService {
         if (key == null || NavStore.KEY_BACK_RIGHT.equals(key) || NavStore.KEY_LIGHT_BAR.equals(key)) {
             detach(); // a new bar with the new order or colours
             attach();
+        }
+        if (key == null || NavStore.KEY_PATTERN.equals(key) || NavStore.KEY_VOLUME_KEYS.equals(key)) {
+            updateKeyFilter();
+        }
+        if (key == null || NavStore.KEY_VOLUME_KEYS.equals(key) || NavStore.isLimitKey(key)) {
+            volume.enforce();
         }
         refresh();
     };
@@ -102,7 +128,19 @@ public final class NavBarService extends AccessibilityService {
             String a = i.getAction();
             if (Intent.ACTION_DREAMING_STARTED.equals(a)) dreaming = true;
             else if (Intent.ACTION_DREAMING_STOPPED.equals(a)) dreaming = false;
+            else if (Intent.ACTION_SCREEN_ON.equals(a)) readLock(); // in case a change went unannounced
             scheduleRefresh();
+        }
+    };
+
+    /**
+     * SeniorLauncher installed, updated, removed or its data cleared: none of
+     * these notify the lock uri, so read the lock again (without it, a bar
+     * hidden "while unlocked" would stay hidden after SeniorLauncher is gone).
+     */
+    private final BroadcastReceiver launcherPackage = new BroadcastReceiver() {
+        @Override public void onReceive(Context c, Intent i) {
+            if (i.getData() != null && LauncherLock.PACKAGE.equals(i.getData().getSchemeSpecificPart())) readLock();
         }
     };
 
@@ -121,6 +159,26 @@ public final class NavBarService extends AccessibilityService {
         } else {
             registerReceiver(screen, f);
         }
+        IntentFilter pkg = new IntentFilter();
+        pkg.addAction(Intent.ACTION_PACKAGE_ADDED);
+        pkg.addAction(Intent.ACTION_PACKAGE_REPLACED);
+        pkg.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        pkg.addAction(Intent.ACTION_PACKAGE_DATA_CLEARED);
+        pkg.addDataScheme("package");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(launcherPackage, pkg, Context.RECEIVER_EXPORTED); // system broadcasts
+        } else {
+            registerReceiver(launcherPackage, pkg);
+        }
+        volume = new VolumeGuard(this, handler);
+        volume.start();
+        try {
+            getContentResolver().registerContentObserver(LauncherLock.STATE, false, lockChanges);
+        } catch (RuntimeException ignored) {
+            // SeniorLauncher not installed: no lock to follow
+        }
+        readLock();
+        updateKeyFilter();
         NavStore.prefs(this).registerOnSharedPreferenceChangeListener(settings);
         instance = this;
         attach();
@@ -131,6 +189,35 @@ public final class NavBarService extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         scheduleRefresh();
+    }
+
+    /** Volume Up/Down only, and only while key filtering is on (updateKeyFilter). */
+    @Override
+    protected boolean onKeyEvent(KeyEvent event) {
+        return running && volume != null && volume.onKey(event);
+    }
+
+    /**
+     * Asks for key events only while the pattern or the locked behaviour needs
+     * them; otherwise the service sees no key at all.
+     */
+    private void updateKeyFilter() {
+        AccessibilityServiceInfo info = getServiceInfo();
+        if (info == null) return;
+        boolean need = VolumeKeys.needKeys(NavStore.pattern(this), NavStore.volumeKeys(this));
+        int flags = need
+                ? info.flags | AccessibilityServiceInfo.FLAG_REQUEST_FILTER_KEY_EVENTS
+                : info.flags & ~AccessibilityServiceInfo.FLAG_REQUEST_FILTER_KEY_EVENTS;
+        if (flags == info.flags) return;
+        info.flags = flags;
+        setServiceInfo(info);
+    }
+
+    private void readLock() {
+        if (!running) return;
+        lock = LauncherLock.read(this);
+        volume.setLock(lock);
+        refresh();
     }
 
     @Override
@@ -168,10 +255,13 @@ public final class NavBarService extends AccessibilityService {
         running = false;
         instance = null;
         NavStore.prefs(this).unregisterOnSharedPreferenceChangeListener(settings);
+        getContentResolver().unregisterContentObserver(lockChanges);
+        if (volume != null) volume.stop();
         handler.removeCallbacks(refresh);
         handler.removeCallbacks(retryAttach);
         try {
             unregisterReceiver(screen);
+            unregisterReceiver(launcherPackage);
         } catch (IllegalArgumentException ignored) {
             // never registered
         }
@@ -250,7 +340,11 @@ public final class NavBarService extends AccessibilityService {
         // event re-checks until the screen wakes.
         PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
         boolean interactive = pm == null || pm.isInteractive();
-        setVisible(interactive && !dreaming && !locked && !NavStore.paused(this));
+        // Unlocked by the helper, while the lock is in use: the helper has the
+        // phone and uses its own buttons (BarProvider still says 1, so the
+        // apps do not bring back their own Back meanwhile).
+        boolean helper = lock.hidesBar(NavStore.hideUnlocked(this));
+        setVisible(interactive && !dreaming && !locked && !NavStore.paused(this) && !helper);
     }
 
     private void setVisible(boolean show) {

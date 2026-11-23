@@ -8,7 +8,7 @@
     <string name="bar_home">Home</string>
 
     <!-- Shown in Accessibility settings, and to Google Play reviewers. -->
-    <string name="service_description">Shows a big, fixed bar with Back and Home buttons at the bottom of the screen, over the phone\'s own navigation buttons. It is a navigation aid for older people and people with cognitive or motor impairments who find the small system buttons or swipe gestures hard to use. It only notices when windows change (to step aside for the lock screen); it cannot read what is on the screen, and sends nothing anywhere.</string>
+    <string name="service_description">Shows a big, fixed bar with Back and Home buttons at the bottom of the screen, over the phone\'s own navigation buttons. It is a navigation aid for older people and people with cognitive or motor impairments who find the small system buttons or swipe gestures hard to use. It only notices when windows change (to step aside for the lock screen) and, if the helper sets it up, presses of the volume buttons (to lock and unlock with a pattern, and to limit the volume while locked); it ignores every other key, cannot read what is on the screen, and sends nothing anywhere.</string>
 
     <string name="status_on">✓ The bar is on.</string>
     <string name="status_paused">✗ The bar is paused.</string>
@@ -45,4 +45,52 @@
     <string name="nav_good">Good: the bar sits exactly over the phone\'s own buttons.</string>
     <string name="nav_advice">Choose 3-button navigation. Then the bar sits exactly over the phone\'s own buttons and takes their taps. With swiping, a swipe from the bottom edge still goes past the bar. In Settings, search for \"navigation\" if the button below does not open it.</string>
     <string name="open_navigation">Open navigation settings</string>
+
+    <string name="status_unlocked">✓ The bar is on, hidden while unlocked. It comes back when the phone is locked.</string>
+
+    <string name="unlocked_heading">While unlocked</string>
+    <string name="unlocked_explain">When you unlock the home screen with its PIN (or the pattern below), the bar steps aside, so you can use the phone\'s own buttons. It comes back when you lock again. Only once a PIN has been set on the home screen.</string>
+    <string name="unlocked_hide">Hide the bar while unlocked</string>
+    <string name="unlocked_keep">Keep the bar while unlocked</string>
+
+    <string name="pattern_heading">Lock with the volume buttons</string>
+    <string name="pattern_explain">Press Volume Up and Down in your own pattern to lock or unlock the home screen and the other Senior apps: 4 to 6 presses, up and down mixed, within 3 seconds and at most 1 second apart. The volume goes back to where it was afterwards. Works while the screen is on and the bar is turned on, not during a call.</string>
+    <string name="pattern_needs_launcher">This needs the Senior home screen (SeniorLauncher), in a current version.</string>
+    <string name="pattern_no_pin_hint">Set a PIN on the home screen first (Settings, Lock); the pattern locks with that PIN.</string>
+    <string name="pattern_none">No pattern: off.</string>
+    <string name="pattern_now">Pattern: %1$s</string>
+    <string name="pattern_record">Record pattern</string>
+    <string name="pattern_remove">Remove pattern</string>
+    <string name="pattern_recording">Press the volume buttons now, 4 to 6 times, up and down mixed.</string>
+    <string name="pattern_recorded">So far: %1$s</string>
+    <string name="pattern_nothing_yet">So far: nothing</string>
+    <string name="pattern_invalid">Use 4 to 6 presses, with at least one Up and one Down.</string>
+    <string name="pattern_save">Save pattern</string>
+    <string name="pattern_cancel">Cancel</string>
+    <string name="pattern_up">Up</string>
+    <string name="pattern_down">Down</string>
+    <string name="pattern_locked">Locked</string>
+    <string name="pattern_unlocked">Unlocked</string>
+    <string name="pattern_no_pin">Set a PIN on the home screen first</string>
+    <string name="pattern_no_launcher">Needs the Senior home screen</string>
+
+    <string name="keys_heading">Volume buttons while locked</string>
+    <string name="keys_normal">Work normally</string>
+    <string name="keys_limits">Stay within the limits</string>
+    <string name="keys_off">Do nothing</string>
+    <string name="keys_explain">While the phone rings or during a call the buttons always work normally. Holding both buttons is Android\'s accessibility shortcut and is not affected.</string>
+
+    <string name="limits_heading">Volume limits while locked</string>
+    <string name="limits_explain">Also when the volume is changed in another way, for example with the slider, it is brought back into these limits.</string>
+    <string name="limit_ring_min">Ring volume, lowest: %1$d of %2$d</string>
+    <string name="limit_ring_max">Ring volume, highest: %1$d of %2$d</string>
+    <string name="limit_media_min">Media volume, lowest: %1$d of %2$d</string>
+    <string name="limit_media_max">Media volume, highest: %1$d of %2$d</string>
+    <string name="limit_alarm_min">Alarm volume, lowest: %1$d of %2$d</string>
+    <string name="limit_lower">− Lower</string>
+    <string name="limit_higher">+ Higher</string>
+    <string name="limit_lower_desc">%1$s: lower</string>
+    <string name="limit_higher_desc">%1$s: higher</string>
+    <string name="dnd_hint">If the phone is switched to silent while locked, the ring can only be turned back on with Do Not Disturb access. Allow it for \"Back &amp; Home\".</string>
+    <string name="dnd_open">Allow Do Not Disturb access</string>
 </resources>
