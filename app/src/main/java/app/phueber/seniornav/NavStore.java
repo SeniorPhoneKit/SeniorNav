@@ -119,4 +119,33 @@ final class NavStore {
         if (s.hasMax) e.putInt(maxKey(s), l.max);
         e.apply();
     }
+
+    /** The saved settings (see NavBackup); never paused, never the service switch. */
+    static NavBackup snapshot(Context c) {
+        VolumeLimits.Stream[] streams = VolumeLimits.Stream.values();
+        VolumeLimits[] limits = new VolumeLimits[streams.length];
+        for (VolumeLimits.Stream s : streams) limits[s.ordinal()] = limits(c, s);
+        return new NavBackup(backRight(c), lightBar(c), hideUnlocked(c), pattern(c), volumeKeys(c), limits);
+    }
+
+    /**
+     * Replaces every saved setting at once (one edit, so a restore is never
+     * half done). The listeners of the service and the screen see the changes
+     * as if the helper had made them; paused is left as it is.
+     */
+    static void restore(Context c, NavBackup b) {
+        SharedPreferences.Editor e = prefs(c).edit()
+                .putBoolean(KEY_BACK_RIGHT, b.backRight)
+                .putBoolean(KEY_LIGHT_BAR, b.lightBar)
+                .putBoolean(KEY_HIDE_UNLOCKED, b.hideUnlocked)
+                .putString(KEY_VOLUME_KEYS, b.volumeKeys.id);
+        if (b.pattern == null) e.remove(KEY_PATTERN);
+        else e.putString(KEY_PATTERN, b.pattern);
+        for (VolumeLimits.Stream s : VolumeLimits.Stream.values()) {
+            VolumeLimits l = b.limits(s);
+            e.putInt(minKey(s), Math.max(0, l.min));
+            if (s.hasMax) e.putInt(maxKey(s), l.max);
+        }
+        e.apply(); // one edit: every key changes together, like the helper's taps
+    }
 }

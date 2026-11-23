@@ -64,6 +64,14 @@
             android:exported="true"
             tools:ignore="ExportedContentProvider" />
 
+        <!-- Saving and restoring the settings for SeniorLauncher's "all Senior apps"
+             backup; answers only SeniorLauncher and this app, see BackupProvider. -->
+        <provider
+            android:name=".BackupProvider"
+            android:authorities="app.phueber.seniornav.backup"
+            android:exported="true"
+            tools:ignore="ExportedContentProvider" />
+
         <!-- The bar. Bound only by the system (BIND_ACCESSIBILITY_SERVICE). -->
         <service
             android:name=".NavBarService"
