@@ -1,6 +1,7 @@
 package app.phueber.seniornav;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -17,6 +18,8 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.io.IOException;
+
 /**
  * The only screen, for the helper: whether the bar is on (in words, and by
  * colour), the way to switch it on, and the advice to use 3-button
@@ -27,6 +30,12 @@ public final class MainActivity extends Activity {
     private LinearLayout content;
     /** The pattern being recorded ("UUD..."), or null when not recording. */
     private StringBuilder recording;
+    private static final int REQUEST_SAVE = 1;
+    private static final int REQUEST_LOAD = 2;
+    /** A loaded file waiting for the helper's "Replace", or null. */
+    private String pendingRestore;
+    /** The last backup outcome shown under the Backup buttons, or null. */
+    private String backupMessage;
     /** Automation may pause the bar or swap its sides while this screen is open. */
     private final SharedPreferences.OnSharedPreferenceChangeListener settings = (p, key) -> build();
     /**
@@ -75,7 +84,10 @@ public final class MainActivity extends Activity {
         content.removeAllViews();
         LockState lock = LauncherLock.read(this);
         boolean locked = lock.locked;
-        if (locked) stopRecording();
+        if (locked) {
+            stopRecording();
+            pendingRestore = null; // a restore asked for before the lock is not carried out
+        }
         // "On" only with the window attached: a running service whose window the
         // system refused shows no bar, so it reads as "turned on but not running".
         BarStatus status = BarStatus.of(NavSettings.serviceTurnedOn(this),
@@ -118,6 +130,7 @@ public final class MainActivity extends Activity {
             addUnlockedSection();
             addPatternSection(lock);
             addKeysSection();
+            addBackupSection();
         }
         addNavigationSection(NavSettings.navMode(this), locked);
     }
@@ -401,6 +414,112 @@ public final class MainActivity extends Activity {
         row.addView(lower, left);
         row.addView(higher, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
         content.addView(row, Ui.fullWidth(this, 8));
+    }
+
+    /**
+     * Save the settings to a file the helper picks, or load them from one
+     * (see NavSettingsBackup). Loading asks first, in place, like the
+     * pattern's Save; the outcome stays under the buttons.
+     */
+    private void addBackupSection() {
+        heading(R.string.backup_heading);
+        content.addView(Ui.text(this, getString(R.string.backup_explain), Ui.TEXT_BODY),
+                Ui.fullWidth(this, 8));
+        if (pendingRestore != null) {
+            content.addView(Ui.bold(this, getString(R.string.backup_confirm), Ui.TEXT_BODY),
+                    Ui.fullWidth(this, 12));
+            Button replace = Ui.button(this, getString(R.string.backup_replace), Palette.Role.RED);
+            replace.setOnClickListener(v -> {
+                String json = pendingRestore;
+                pendingRestore = null;
+                restore(json);
+            });
+            content.addView(replace, Ui.fullWidth(this, 12));
+            Button cancel = Ui.outlined(this, getString(R.string.pattern_cancel));
+            cancel.setOnClickListener(v -> {
+                pendingRestore = null;
+                build();
+            });
+            content.addView(cancel, Ui.fullWidth(this, 12));
+            return;
+        }
+        Button save = Ui.button(this, getString(R.string.backup_save), Palette.Role.BLUE);
+        save.setOnClickListener(v -> pick(BackupFiles.saveIntent(
+                Backup.fileName("SeniorNav", BackupFiles.today())), REQUEST_SAVE));
+        content.addView(save, Ui.fullWidth(this, 12));
+        Button load = Ui.button(this, getString(R.string.backup_load), Palette.Role.BLUE);
+        load.setOnClickListener(v -> pick(BackupFiles.openIntent(), REQUEST_LOAD));
+        content.addView(load, Ui.fullWidth(this, 12));
+        if (backupMessage != null) {
+            TextView t = Ui.bold(this, backupMessage, Ui.TEXT_BODY);
+            t.setAccessibilityLiveRegion(TextView.ACCESSIBILITY_LIVE_REGION_POLITE);
+            content.addView(t, Ui.fullWidth(this, 12));
+        }
+    }
+
+    private void pick(Intent intent, int request) {
+        backupMessage = null;
+        try {
+            startActivityForResult(intent, request);
+        } catch (ActivityNotFoundException e) {
+            backupMessage = getString(R.string.backup_no_picker);
+            build();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int request, int result, Intent data) {
+        super.onActivityResult(request, result, data);
+        if (request != REQUEST_SAVE && request != REQUEST_LOAD) return;
+        Uri uri = result == RESULT_OK && data != null ? data.getData() : null;
+        if (uri == null) return; // cancelled in the picker
+        // Locked while the picker was open: change nothing, show nothing.
+        if (LauncherLock.locked(this)) return;
+        if (request == REQUEST_SAVE) {
+            try {
+                BackupFiles.write(this, uri, NavSettingsBackup.export(this));
+                backupMessage = getString(R.string.backup_saved);
+            } catch (IOException | RuntimeException e) {
+                backupMessage = getString(R.string.backup_error_save);
+            }
+            return; // onResume rebuilds
+        }
+        String json;
+        try {
+            json = BackupFiles.read(this, uri);
+        } catch (IOException | RuntimeException e) {
+            backupMessage = getString(R.string.backup_error_read);
+            return;
+        }
+        // Check the file before asking, so a bad file is refused at once.
+        try {
+            Backup.settingsFor(json, getPackageName());
+            pendingRestore = json;
+        } catch (Backup.Failure f) {
+            backupMessage = errorText(f.code);
+        }
+    }
+
+    private void restore(String json) {
+        NavSettingsBackup.Result r = NavSettingsBackup.restore(this, json);
+        if (r.error != null) {
+            backupMessage = errorText(r.error);
+        } else if (r.skipped.length > 0) {
+            backupMessage = getString(R.string.backup_restored) + " "
+                    + getString(R.string.backup_not_found, String.join(", ", r.skipped));
+        } else {
+            backupMessage = getString(R.string.backup_restored);
+        }
+        build();
+    }
+
+    private String errorText(String code) {
+        switch (code) {
+            case Backup.ERROR_NEWER: return getString(R.string.backup_error_newer);
+            case Backup.ERROR_NO_ENTRY: return getString(R.string.backup_error_no_entry, getString(R.string.app_name));
+            case Backup.ERROR_LOCKED: return getString(R.string.locked);
+            default: return getString(R.string.backup_error_malformed);
+        }
     }
 
     private void addNavigationSection(NavMode mode, boolean locked) {

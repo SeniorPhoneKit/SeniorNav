@@ -93,4 +93,20 @@
     <string name="limit_higher_desc">%1$s: higher</string>
     <string name="dnd_hint">If the phone is switched to silent while locked, the ring can only be turned back on with Do Not Disturb access. Allow it for \"Back &amp; Home\".</string>
     <string name="dnd_open">Allow Do Not Disturb access</string>
+
+    <string name="backup_heading">Backup</string>
+    <string name="backup_explain">Keeps this app\'s settings in a file you choose, for example in Downloads or on Google Drive. Load the file again after a reset or on a new phone. The bar itself is switched on again in Accessibility settings.</string>
+    <string name="backup_save">Save settings to a file</string>
+    <string name="backup_load">Load settings from a file</string>
+    <string name="backup_confirm">Replace the current settings with the ones from the file?</string>
+    <string name="backup_replace">Replace</string>
+    <string name="backup_saved">Saved.</string>
+    <string name="backup_restored">Restored.</string>
+    <string name="backup_not_found">Not found on this phone: %1$s</string>
+    <string name="backup_error_malformed">This file is not a readable settings file. Nothing was changed.</string>
+    <string name="backup_error_newer">This file comes from a newer version of the app. Please update the app first. Nothing was changed.</string>
+    <string name="backup_error_no_entry">This file holds no settings for %1$s. Nothing was changed.</string>
+    <string name="backup_error_read">The file could not be read. Nothing was changed.</string>
+    <string name="backup_error_save">The file could not be saved.</string>
+    <string name="backup_no_picker">This phone cannot choose files.</string>
 </resources>

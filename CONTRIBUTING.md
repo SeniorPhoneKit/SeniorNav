@@ -33,7 +33,7 @@ gitignored `local.properties` containing `sdk.dir=/path/to/Android/Sdk`.
 
 Unit tests carry the weight; device testing is by hand for now.
 
-    ./gradlew test        # JVM unit tests (BarHeight, NavMode, BarStatus, Palette, VolumePattern, VolumeLimits, VolumeKeys, LockState, ...)
+    ./gradlew test        # JVM unit tests (BarHeight, NavMode, BarStatus, Palette, VolumePattern, VolumeLimits, VolumeKeys, LockState, NavBackup, Backup, ...)
     ./gradlew lint
 
 Logic that can be tested without a device belongs in a pure Java class (no

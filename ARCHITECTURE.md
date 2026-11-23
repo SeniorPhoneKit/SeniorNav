@@ -77,7 +77,7 @@ and the shared lock).
 | `VolumeLimits` | Pure: a stream's lowest and highest allowed step, clamping, whether a step stays in range, and moving one limit without crossing the other. Unit tested. |
 | `LockState` | Pure: SeniorLauncher's lock as read (answered, new enough, locked, PIN set) and whether the bar steps aside while unlocked. Unit tested. |
 | `Bar` | The bar's view (Back left, Home right, or swapped by the helper's choice; always the screen's left/right, also in RTL; each half the width, icon plus word; dark bar with white, or light bar with near-black and a grey top line) and its window parameters; reads the system navigation bar height. |
-| `MainActivity` | The helper's screen: status in words and colour ("hidden while unlocked" too), "paused by automation" with Show the bar again, the button order, the bar colour, hide while unlocked, the volume pattern (record, show, remove), the locked volume-button mode and the limits with the Do Not Disturb hint (all hidden while locked), the button to Accessibility settings, the "Allow restricted settings" hint (Android 13+), the navigation mode and the advice to use 3-button navigation. Back at the bottom goes home in one tap (hidden while the bar is on, see `NavBar`). |
+| `MainActivity` | The helper's screen: status in words and colour ("hidden while unlocked" too), "paused by automation" with Show the bar again, the button order, the bar colour, hide while unlocked, the volume pattern (record, show, remove), the locked volume-button mode and the limits with the Do Not Disturb hint (all hidden while locked), the button to Accessibility settings, the "Allow restricted settings" hint (Android 13+), the navigation mode and the advice to use 3-button navigation, and Backup (save to / load from a file, hidden while locked). Back at the bottom goes home in one tap (hidden while the bar is on, see `NavBar`). |
 | `NavStore` | The settings, `paused`, `back_right`, `light_bar`, `hide_unlocked`, `pattern`, `volume_keys` and the limits (`ring_min`/`ring_max`, `media_min`/`media_max`, `alarm_min`), in one SharedPreferences file that the service, the screen and the receiver share. |
 | `AutomationReceiver` | Exported; BAR_HIDE/BAR_SHOW/BAR_SIDES/BAR_COLOUR/BAR_UNLOCKED/VOLUME_KEYS/VOLUME_LIMIT/PATTERN_REMOVE write `NavStore`, BACK/HOME go to `NavBarService.perform`. BACK/HOME and BAR_HIDE are rate-limited (`AutomationLimit`). |
 | `AutomationLimit` | Pure: at most one automation action a second, six a minute, then a two-minute cooldown. Unit tested. |
@@ -87,6 +87,11 @@ and the shared lock).
 | `Ui` | Shared buttons and the screen frame, as in the other Senior apps. |
 | `NavBar` | Whether the senior can rely on the bar (`NavBarService.barVisible`, the rule `BarProvider` publishes; also true while it is hidden because the helper unlocked). While it is, the pinned Back button is hidden, since the bar already has Back and Home; shown again while it is paused or not running. Re-checked whenever a screen gets focus and on every `BarProvider` change while attached. |
 | `BarProvider` | Exported, read-only: tells the other Senior apps whether they need no Back of their own (see Bar state for other apps). |
+| `NavBackup` | Pure: the saved settings (sides, colour, hide while unlocked, pattern, volume-key mode, limits) to and from a backup entry, validated with `VolumePattern` and `VolumeKeys`. Unit tested. |
+| `NavSettingsBackup` | Exports this app's backup file from `NavStore` and restores one into it (refused while locked). Used by the screen and `BackupProvider`. |
+| `BackupProvider` | Exported, `call` only: "export" and "import" for SeniorLauncher's all-apps backup; answers only SeniorLauncher and this app. |
+| `Backup`, `Json` | Pure: the family's backup file (envelope, version check, typed reads) and a small JSON reader/writer; the same in every Senior app. Unit tested. |
+| `BackupFiles` | Saves and reads the file through the system file picker (Storage Access Framework). |
 | `AttachRetry` | Pure: the growing wait before attaching a refused window again. Unit tested. |
 | `Palette` | Pure: the colours by role (the family's Light look, the daylight twin of SeniorLauncher's Dark: blue-grey page #E8EDF4, white cards, navy text #14213D, soft navy `OUTLINE` #6F82A3 for outlined buttons and Back; plus the bar, which keeps its own colours) and the WCAG contrast check. Unit tested. |
 | `BarHeight` | Pure: which height source wins, and the 48dp floor. Unit tested. |
@@ -260,6 +265,47 @@ of its own.
   window manager before the service sees the keys; a press while the other
   key is held resets the pattern and is otherwise handled as usual.
 
+## Backup
+
+The helper can save the settings to a file and load them back after a reset
+or on a new phone. The file is the Senior family's backup format (`Backup`):
+JSON, `{"format": "seniorphonekit-backup", "version": 1, "created": …,
+"apps": {"app.phueber.seniornav": {"appVersion": …, "settings": {…}}}}`.
+SeniorLauncher's "all Senior apps" file has the same shape with one entry per
+app; this app takes only its own entry from either.
+
+- **What is saved** (`NavBackup`): `backRight`, `lightBar`,
+  `hideWhileUnlocked`, `pattern` (absent when none), `volumeKeys`
+  (`normal`/`limits`/`off`) and `limits` per stream (`min`, and `max` for ring
+  and media, absent for "up to the top"). Not saved: whether the service is
+  on (Android's switch, which the status card asks for on a new phone),
+  `paused` (a moment's state from automation) and any lock or PIN, which is
+  SeniorLauncher's.
+- **Files.** Through the system file picker (`ACTION_CREATE_DOCUMENT` /
+  `ACTION_OPEN_DOCUMENT`), so no storage permission; the helper chooses where.
+  Suggested name `SeniorNav-settings-<date>.json`.
+- **Restore is a replace**, after "Replace the current settings with the ones
+  from the file?" asked in place on the screen. The whole entry is read and
+  checked first (a newer `version`, a damaged file, an invalid pattern, an
+  unknown mode or a maximum below the minimum refuse it, with nothing
+  changed), then written to `NavStore` in one edit, so the service and the
+  screen follow through their usual listeners. Missing fields take the
+  defaults.
+- **Locked.** The Backup section is hidden while SeniorLauncher is locked, a
+  restore is refused then (`locked`), and a lock that comes while the picker
+  is open drops the result.
+- **For SeniorLauncher.** `BackupProvider`
+  (`content://app.phueber.seniornav.backup`, `call` only): `export` returns
+  `json`, this app's file; `import` (the file as `arg`) returns `ok` and
+  `skipped` (always empty here: nothing in these settings depends on the
+  phone), or `error` (`malformed`, `newer_version`, `no_entry`, `locked`,
+  `not_allowed`). Only the calling packages `app.phueber.seniorlauncher` and
+  this app are answered (`Backup.callerAllowed`): the pattern unlocks the
+  phone, so other apps should not read it. A sanity check, not security, like
+  the lock itself.
+- **No automation command:** saving and loading go through the file picker,
+  where the helper chooses the file, and a restore only after a confirm.
+
 ## Permissions
 
 An accessibility overlay needs no permission beyond the helper enabling the
@@ -270,7 +316,7 @@ Do Not Disturb access, so the helper can grant it for the ring minimum (see
 Volume buttons and the shared lock); the helper grants it in Settings, never
 automatically. The `<queries>` entry only makes
 SeniorLauncher's lock provider (and with it its package broadcasts) visible. `BarProvider` is exported without a
-permission (see Bar state for other apps).
+permission (see Bar state for other apps); `BackupProvider` too, checking the caller instead (see Backup).
 
 ## Known limits
 

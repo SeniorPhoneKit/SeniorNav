@@ -94,6 +94,17 @@ Android warns more strongly when the bar is switched on, because the app may
 see key presses: it only looks at Volume Up and Down, and only while one of
 the settings above is in use.
 
+## Backup of the settings
+
+At the bottom of the app's screen (while unlocked), under **Backup**: **Save
+settings to a file** keeps the button order, the bar colour, hiding while
+unlocked, the volume pattern, what the volume buttons do while locked and the
+limits in a file you choose (Downloads, Google Drive, …). **Load settings from
+a file** puts them back, after a reset or on a new phone, once you confirm
+**Replace**. The bar itself is switched on again in Accessibility settings, and
+the lock (the PIN) stays SeniorLauncher's. SeniorLauncher can also save and load
+the settings of every Senior app at once; either file works in either place.
+
 ## Good to know
 
 - In landscape the bar stays at the bottom, also on phones whose own buttons
@@ -128,6 +139,10 @@ command to unlock or to set a pattern.
 `BACK`, `HOME` and `BAR_HIDE` are limited, so that no app can flood them: at
 most one a second and six a minute; more and they are ignored for two minutes.
 A rule that reacts to an app opening or closing stays well below that.
+
+The settings backup has no command: saving and loading go through the file
+picker, where the helper chooses the file, and loading replaces the settings
+only after a confirmation.
 
 **Example (Trigly):** trigger *App opened: YouTube*, action *Fire intent*, send
 mode *Broadcast*, action `app.phueber.seniornav.action.BAR_HIDE`, package
@@ -249,6 +264,20 @@ Android warnt beim Einschalten der Leiste deutlicher, weil die App
 Tastendrücke sehen darf: Sie beachtet nur Lauter und Leiser, und nur, solange
 eine der Einstellungen oben genutzt wird.
 
+## Sicherung der Einstellungen
+
+Unten auf dem Bildschirm der App (wenn entsperrt), unter **Sicherung**:
+**Einstellungen in eine Datei speichern** bewahrt die Reihenfolge der Tasten,
+die Farbe der Leiste, das Ausblenden im entsperrten Zustand, das Muster der
+Lautstärketasten, was die Lautstärketasten gesperrt tun, und die Grenzen in
+einer Datei auf, die Sie wählen (Downloads, Google Drive, …). **Einstellungen
+aus einer Datei laden** holt sie zurück, nach einem Zurücksetzen oder auf einem
+neuen Telefon, sobald Sie **Ersetzen** bestätigen. Die Leiste selbst schalten
+Sie danach in den Bedienungshilfen wieder ein, und die Sperre (die PIN) bleibt
+Sache von SeniorLauncher. SeniorLauncher kann auch die Einstellungen aller
+Senior-Apps auf einmal sichern und laden; jede der beiden Dateien funktioniert
+an beiden Stellen.
+
 ## Gut zu wissen
 
 - Im Querformat bleibt die Leiste unten, auch auf Telefonen, deren eigene Tasten
@@ -286,6 +315,10 @@ oder zum Setzen eines Musters gibt es nicht.
 senden kann: höchstens einer pro Sekunde und sechs pro Minute; darüber hinaus
 werden sie zwei Minuten lang ignoriert. Eine Regel, die auf das Öffnen oder
 Schließen einer App reagiert, bleibt weit darunter.
+
+Für die Sicherung der Einstellungen gibt es keinen Befehl: Speichern und Laden
+laufen über die Dateiauswahl, in der die helfende Person die Datei wählt, und
+Laden ersetzt die Einstellungen erst nach einer Bestätigung.
 
 **Beispiel (Trigly):** Auslöser *App geöffnet: YouTube*, Aktion *Intent senden*,
 Sendeart *Broadcast*, Aktion `app.phueber.seniornav.action.BAR_HIDE`, Paket
