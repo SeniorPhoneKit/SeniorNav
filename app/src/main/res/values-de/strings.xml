@@ -14,11 +14,11 @@
     <string name="status_stuck">✗ Die Leiste ist eingeschaltet, läuft aber nicht.</string>
 
     <string name="what_it_does">Eine große Leiste mit Zurück und Start liegt unten auf dem Bildschirm, in jeder App, über den eigenen Tasten des Telefons.</string>
-    <string name="how_to_turn_on">Zum Einschalten: unten tippen, „Zurück &amp; Start“ suchen (oft unter „Heruntergeladene Apps“), öffnen und einschalten. Android fragt dann nach der Erlaubnis; erlauben.</string>
+    <string name="how_to_turn_on">„Zurück &amp; Start“ in den Bedienungshilfen einschalten.</string>
     <string name="how_to_restart">Android hat sie angehalten. Unten tippen, „Zurück &amp; Start“ öffnen, aus- und wieder einschalten.</string>
     <string name="open_accessibility">Bedienungshilfen öffnen</string>
     <string name="open_accessibility_off">In den Bedienungshilfen ausschalten</string>
-    <string name="restricted_hint">Wenn Android „Eingeschränkte Einstellung“ meldet: unten die App-Info öffnen, oben rechts auf ⋮ tippen, „Eingeschränkte Einstellungen zulassen“ wählen und es noch einmal versuchen. Das ist nötig, wenn die App nicht aus Google Play installiert wurde.</string>
+    <string name="restricted_hint">Meldet Android „Eingeschränkte Einstellung“? Erst in der App-Info zulassen.</string>
     <string name="open_app_info">App-Info öffnen</string>
     <string name="locked">Vom Startbildschirm aus gesperrt. Dort entsperren, um Einstellungen zu ändern.</string>
 
@@ -41,7 +41,7 @@
     <string name="nav_gesture">Dieses Telefon nutzt die Bedienung über Gesten (Wischen).</string>
     <string name="nav_unknown">Die Navigationsart dieses Telefons ließ sich nicht lesen.</string>
     <string name="nav_good">Gut: Die Leiste liegt genau über den eigenen Tasten des Telefons.</string>
-    <string name="nav_advice">Die Bedienung über 3 Schaltflächen wählen. Dann liegt die Leiste genau über den eigenen Tasten des Telefons und fängt deren Tipps ab. Beim Wischen geht ein Wisch vom unteren Rand weiter an der Leiste vorbei. In den Einstellungen nach „Navigation“ suchen, falls die Taste unten sie nicht öffnet.</string>
+    <string name="nav_advice">Die Bedienung über 3 Schaltflächen wählen: Dann liegt die Leiste genau über den eigenen Tasten des Telefons.</string>
     <string name="open_navigation">Navigationseinstellungen öffnen</string>
 
     <string name="status_unlocked">✓ Die Leiste ist an, ausgeblendet solange entsperrt. Sie kommt zurück, wenn das Telefon gesperrt wird.</string>
@@ -112,4 +112,42 @@
     <string name="backup_error_read">Die Datei konnte nicht gelesen werden. Es wurde nichts geändert.</string>
     <string name="backup_error_save">Die Datei konnte nicht gespeichert werden.</string>
     <string name="backup_no_picker">Dieses Telefon kann keine Dateien auswählen.</string>
+
+    <string name="steps_button">Wie? Schritte zeigen</string>
+    <string name="steps_a11y_title">„Zurück &amp; Start“ einschalten</string>
+    <string-array name="steps_a11y">
+        <item>Unten auf „Bedienungshilfen öffnen“ tippen.</item>
+        <item>Auf „Zurück &amp; Start“ tippen. Es steht unter „Heruntergeladene Apps“.</item>
+        <item>„Zurück &amp; Start verwenden“ einschalten.</item>
+        <item>Android fragt nach der vollständigen Kontrolle: auf „Zulassen“ tippen.</item>
+    </string-array>
+    <string-array name="steps_a11y_notes">
+        <item>Samsung: „Zurück &amp; Start“ steht unter „Installierte Apps“.</item>
+        <item>Zeigt die App „eingeschaltet, läuft aber nicht“? „Zurück &amp; Start verwenden“ aus- und wieder einschalten.</item>
+    </string-array>
+    <string-array name="steps_a11y_notes_restricted">
+        <item>Meldet Android „Eingeschränkte Einstellung“? Unten auf „App-Info öffnen“ tippen, oben rechts auf ⋮ tippen, „Eingeschränkte Einstellungen zulassen“ wählen und wieder bei Schritt 1 beginnen. Nötig, wenn die App nicht aus Google Play installiert wurde.</item>
+        <item>Samsung: „Zurück &amp; Start“ steht unter „Installierte Apps“.</item>
+        <item>Zeigt die App „eingeschaltet, läuft aber nicht“? „Zurück &amp; Start verwenden“ aus- und wieder einschalten.</item>
+    </string-array>
+    <string name="steps_nav_title">Auf 3 Schaltflächen umstellen</string>
+    <string-array name="steps_nav">
+        <item>Unten auf „Navigationseinstellungen öffnen“ tippen.</item>
+        <item>Auf „Bedienung über 3 Schaltflächen“ tippen.</item>
+        <item>Zurück in diese App: Sie zeigt „Dieses Telefon nutzt die Bedienung über 3 Schaltflächen.“</item>
+    </string-array>
+    <string-array name="steps_nav_notes">
+        <item>Nur die Liste der Einstellungen geöffnet? Auf „System“ tippen, dann auf „Navigationsmodus“.</item>
+        <item>Samsung: „Anzeige“, dann „Navigationsleiste“, dann „Schaltflächen“.</item>
+    </string-array>
+    <string name="steps_dnd_title">Zugriff auf „Bitte nicht stören“ erlauben</string>
+    <string-array name="steps_dnd">
+        <item>Unten auf „Zugriff auf ‚Bitte nicht stören‘ erlauben“ tippen.</item>
+        <item>In der Liste auf „Zurück &amp; Start“ tippen.</item>
+        <item>„‚Bitte nicht stören‘ zulassen“ einschalten.</item>
+        <item>Auf „Zulassen“ tippen.</item>
+    </string-array>
+    <string-array name="steps_dnd_notes">
+        <item>Die Liste hat sich nicht geöffnet? In den Einstellungen: „Apps“, „Spezieller App-Zugriff“, „Zugriff während ‚Bitte nicht stören‘“.</item>
+    </string-array>
 </resources>

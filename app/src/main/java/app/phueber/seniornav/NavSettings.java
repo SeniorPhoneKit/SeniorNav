@@ -60,7 +60,8 @@ final class NavSettings {
 
     /**
      * Android has no public action for System navigation. These are the screens
-     * AOSP-based Settings apps (Pixel and others) use, tried in turn; if none
+     * AOSP-based Settings apps (Pixel and others) use, tried in turn (on
+     * the Android 15 emulator the first is gone and the second opens it); if none
      * opens, the general settings page, from where the helper searches for
      * "navigation". Every try names the Settings app, since a non-public
      * action may be claimed by any app.
@@ -70,7 +71,10 @@ final class NavSettings {
                 new Intent().setComponent(new ComponentName("com.android.settings",
                         "com.android.settings.Settings$SystemNavigationGestureSettingsActivity")),
                 // pinned to the system Settings app: unpinned, any app could
-                // claim this action and show a fake settings screen
+                // claim these actions and show a fake settings screen.
+                // Navigation mode on Pixels with Android 14 and 15:
+                new Intent("com.android.settings.NAVIGATION_MODE_SETTINGS")
+                        .setPackage("com.android.settings"),
                 new Intent("android.settings.GESTURE_NAVIGATION_SETTINGS")
                         .setPackage("com.android.settings"),
                 new Intent(Settings.ACTION_SETTINGS),

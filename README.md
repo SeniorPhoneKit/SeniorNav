@@ -37,14 +37,15 @@ Needs Android 8.0 or newer.
 ## Setting it up (for the helper)
 
 1. Open **Back & Home**. It says whether the bar is on.
-2. Tap **Open accessibility settings**, find **Back & Home** (often under
-   "Downloaded apps"), open it and switch it on. Android asks for permission;
-   allow it.
+2. Tap **Open accessibility settings**, tap **Back & Home** (under
+   "Downloaded apps"; Samsung: "Installed apps"), turn on **Use Back & Home**
+   and tap **Allow**.
 3. On Android 13 and newer, Android may say **"Restricted setting"**. Then go
    back to the app, tap **Open App info**, tap **⋮** at the top right, choose
    **Allow restricted settings**, and do step 2 again.
-4. Switch the phone to **3-button navigation** (the app shows which mode is on
-   and has a button for it; otherwise search Settings for "navigation"). The bar
+4. Switch the phone to **3-button navigation**: tap **Open navigation
+   settings**, then **3-button navigation** (if only the Settings list opens:
+   System, Navigation mode; Samsung: Display, Navigation bar, Buttons). The bar
    then sits exactly over the phone's own buttons. With swipe navigation, a swipe
    from the bottom edge still goes past the bar.
 5. If the buttons are still too small, make everything bigger in Settings >
@@ -52,6 +53,9 @@ Needs Android 8.0 or newer.
 6. Under **Button order**, choose **Back on the left** (the default) or **Back
    on the right**. The bar changes at once.
 7. Under **Bar colour**, choose **Dark bar** (the default) or **Light bar**.
+
+Next to each of these setup buttons, **How? Show the steps** shows the same
+steps on the phone, numbered, with the button to go there.
 
 If the app later says **"turned on but not running"**, Android has stopped it:
 switch it off and on again in accessibility settings. Some phone makers stop
@@ -207,15 +211,17 @@ Benötigt Android 8.0 oder neuer.
 ## Einrichten (für die helfende Person)
 
 1. **Zurück & Start** öffnen. Die App zeigt, ob die Leiste an ist.
-2. **Bedienungshilfen öffnen** antippen, **Zurück & Start** suchen (oft unter
-   „Heruntergeladene Apps“), öffnen und einschalten. Android fragt nach der
-   Erlaubnis; erlauben.
+2. **Bedienungshilfen öffnen** antippen, auf **Zurück & Start** tippen (unter
+   „Heruntergeladene Apps“; Samsung: „Installierte Apps“), **Zurück & Start
+   verwenden** einschalten und **Zulassen** tippen.
 3. Ab Android 13 meldet Android eventuell **„Eingeschränkte Einstellung“**. Dann
    zurück in die App, **App-Info öffnen** antippen, oben rechts auf **⋮** tippen,
    **Eingeschränkte Einstellungen zulassen** wählen und Schritt 2 wiederholen.
-4. Das Telefon auf die **Bedienung über 3 Schaltflächen** umstellen (die App
-   zeigt, welche Art an ist, und hat eine Taste dafür; sonst in den Einstellungen
-   nach „Navigation“ suchen). Dann liegt die Leiste genau über den eigenen Tasten.
+4. Das Telefon auf die **Bedienung über 3 Schaltflächen** umstellen:
+   **Navigationseinstellungen öffnen** antippen, dann **Bedienung über
+   3 Schaltflächen** (öffnet sich nur die Liste der Einstellungen: System,
+   Navigationsmodus; Samsung: Anzeige, Navigationsleiste, Schaltflächen). Dann
+   liegt die Leiste genau über den eigenen Tasten.
    Bei der Bedienung über Gesten geht ein Wisch vom unteren Rand weiter an der
    Leiste vorbei.
 5. Sind die Tasten noch zu klein, in Einstellungen > Display die
@@ -224,6 +230,9 @@ Benötigt Android 8.0 oder neuer.
    rechts** wählen. Die Leiste ändert sich sofort.
 7. Unter **Farbe der Leiste** **Dunkle Leiste** (Standard) oder **Helle Leiste**
    wählen.
+
+Neben jeder dieser Einrichtungstasten zeigt **Wie? Schritte zeigen** dieselben
+Schritte auf dem Telefon, nummeriert, mit der Taste, die dorthin führt.
 
 Zeigt die App später **„eingeschaltet, läuft aber nicht“**, hat Android sie
 angehalten: in den Bedienungshilfen aus- und wieder einschalten. Manche
