@@ -23,7 +23,7 @@ The bar steps aside on the lock screen. With the keyboard open, Back closes it.
 ## Install
 
 1. Download the latest `SeniorNav-*.apk` from the
-   [Releases](https://github.com/philipphueber/SeniorNav/releases) page on the
+   [Releases](https://github.com/SeniorPhoneKit/SeniorNav/releases) page on the
    phone.
 2. Open it. Android asks whether to allow installing from this source; allow it
    once.
@@ -130,7 +130,7 @@ Zurück die Tastatur.
 ## Installieren
 
 1. Die neueste `SeniorNav-*.apk` auf der Seite
-   [Releases](https://github.com/philipphueber/SeniorNav/releases) auf dem
+   [Releases](https://github.com/SeniorPhoneKit/SeniorNav/releases) auf dem
    Telefon herunterladen.
 2. Öffnen. Android fragt, ob Installationen aus dieser Quelle erlaubt werden
    sollen; einmal erlauben.
